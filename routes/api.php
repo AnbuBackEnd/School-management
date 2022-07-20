@@ -15,7 +15,10 @@ use App\Http\controllers\UserController;
 |
 */
 
-
+Route::get('/unauthenticated', [UserController::class, 'unauthenticated'])->name('unauthenticated');
 Route::post('/register', [UserController::class, 'register']);
-Route::post('/account_confirmation', [UserController::class, 'account_confirmation']);
+Route::post('/accountVerification', [UserController::class, 'accountVerification']);
 Route::post('/login', [UserController::class, 'login']);
+Route::post('/decrypt', [UserController::class, 'decrypt_user']);
+Route::post('/addStaff', [UserController::class, 'addStaff'])->middleWare('auth:api');
+Route::get('/getStaffList', [UserController::class, 'getStaffs'])->middleWare('auth:api');

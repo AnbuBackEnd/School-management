@@ -15,9 +15,29 @@ class RoleSeeder extends Seeder
     public function run()
     {
         Role::create(['name' => 'Super-Admin']);
-        Role::create(['name' => 'Admin']);
-        Role::create(['name' => 'Teaching-Staff']);
-        Role::create(['name' => 'Administration-Staff']);
+
+        //Admin Give Permissions
+        $role=Role::create(['name' => 'Admin']);
+        $permission = Permission::create(['guard_name' => 'web','name' => 'addStaffs']);
+        $role->givePermissionTo($permission);
+        $permission = Permission::create(['guard_name' => 'web','name' => 'editStaffs']);
+        $role->givePermissionTo($permission);
+        $permission = Permission::create(['guard_name' => 'web','name' => 'deleteStaffs']);
+        $role->givePermissionTo($permission);
+        $permission = Permission::create(['guard_name' => 'web','name' => 'viewStaffs']);
+        $role->givePermissionTo($permission);
+
+        $role=Role::create(['name' => 'TeachingStaff']);
+        $permission = Permission::create(['guard_name' => 'web','name' => 'addStudent']);
+        $role->givePermissionTo($permission);
+        $permission = Permission::create(['guard_name' => 'web','name' => 'editStudent']);
+        $role->givePermissionTo($permission);
+        $permission = Permission::create(['guard_name' => 'web','name' => 'deleteStudent']);
+        $role->givePermissionTo($permission);
+        $permission = Permission::create(['guard_name' => 'web','name' => 'viewStudent']);
+        $role->givePermissionTo($permission);
+        Role::create(['name' => 'AdministrationStaff']);
+
         Role::create(['name' => 'librarian']);
     }
 }
