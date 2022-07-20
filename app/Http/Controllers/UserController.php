@@ -41,6 +41,7 @@ class UserController extends Controller
                 $user->email = $input['email'];
                 $user->password = Hash::make($input['password']);
                 $user->otp_code= random_int(100000, 999999);
+                $user->assignRole('admin');
                 if ($user->save())
                 {
                     $output['status']=true;
