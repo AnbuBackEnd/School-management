@@ -21,4 +21,8 @@ Route::post('/accountVerification', [UserController::class, 'accountVerification
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/decrypt', [UserController::class, 'decrypt_user']);
 Route::post('/addStaff', [UserController::class, 'addStaff'])->middleWare('auth:api');
+<<<<<<< HEAD
+Route::get('/getStaffList', [UserController::class, 'getStaffs']);
+=======
 Route::get('/getStaffList', [UserController::class, 'getStaffs'])->middleWare('auth:api');
+>>>>>>> a4bd76dee440c50b817523bfc6e90c50980545b2

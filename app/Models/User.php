@@ -11,7 +11,14 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable,HasRoles;
+<<<<<<< HEAD
+    public function __construct()
+    {
+       return $this->username=1000;
+=======
+>>>>>>> a4bd76dee440c50b817523bfc6e90c50980545b2
 
+    }
     /**
      * The attributes that are mass assignable.
      *

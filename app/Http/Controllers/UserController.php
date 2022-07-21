@@ -6,9 +6,10 @@ use Hash;
 use Input;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\user;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use App\Models\user;
+
 use App\Http\Traits\StudentTrait;
 class UserController extends Controller
 {
@@ -40,7 +41,7 @@ class UserController extends Controller
                 $user->otp_code= random_int(100000, 999999);
                 $user->role=2;
                 $user->role_text='Admin';
-                if ($user->save())
+                if($user->save())
                 {
                     $user->assignRole('admin');
                     $output['status']=true;
