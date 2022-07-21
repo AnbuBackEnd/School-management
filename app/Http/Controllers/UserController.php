@@ -43,7 +43,7 @@ class UserController extends Controller
                 $user->role_text='Admin';
                 if($user->save())
                 {
-                    $user->assignRole('admin');
+                    $user->assignRole('Admin');
                     $output['status']=true;
                     $output['message']='Successfully Added';
                     $output['userData']=$user;
@@ -78,6 +78,10 @@ class UserController extends Controller
             $code=400;
         }
         return response($response, $code);
+    }
+    public function encryptData_sample()
+    {
+        $this->encrypt_sample();
     }
     public function accountVerification(Request $request)
     {

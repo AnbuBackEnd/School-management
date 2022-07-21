@@ -14,48 +14,39 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
-<<<<<<< HEAD
         Role::create(['name' => 'SuperAdmin']);
-=======
-        Role::create(['name' => 'Super-Admin']);
->>>>>>> a4bd76dee440c50b817523bfc6e90c50980545b2
 
         //Admin Give Permissions
         $role=Role::create(['name' => 'Admin']);
-        $permission = Permission::create(['guard_name' => 'web','name' => 'addStaffs']);
+        $permission = Permission::create(['name' => 'addStaffs']);
         $role->givePermissionTo($permission);
-        $permission = Permission::create(['guard_name' => 'web','name' => 'editStaffs']);
+        $permission = Permission::create(['name' => 'editStaffs']);
         $role->givePermissionTo($permission);
-        $permission = Permission::create(['guard_name' => 'web','name' => 'deleteStaffs']);
+        $permission = Permission::create(['name' => 'deleteStaffs']);
         $role->givePermissionTo($permission);
-        $permission = Permission::create(['guard_name' => 'web','name' => 'viewStaffs']);
+        $permission = Permission::create(['name' => 'viewStaffs']);
         $role->givePermissionTo($permission);
-<<<<<<< HEAD
-        $permission = Permission::create(['guard_name' => 'web','name' => 'addSections']);
+        $permission = Permission::create(['name' => 'addSections']);
         $role->givePermissionTo($permission);
-        $permission = Permission::create(['guard_name' => 'web','name' => 'editSections']);
+        $permission = Permission::create(['name' => 'editSections']);
         $role->givePermissionTo($permission);
-        $permission = Permission::create(['guard_name' => 'web','name' => 'deleteSections']);
+        $permission = Permission::create(['name' => 'deleteSections']);
         $role->givePermissionTo($permission);
-        $permission = Permission::create(['guard_name' => 'web','name' => 'viewSections']);
+        $permission = Permission::create(['name' => 'viewSections']);
         $role->givePermissionTo($permission);
-=======
->>>>>>> a4bd76dee440c50b817523bfc6e90c50980545b2
+        $permission = Permission::create(['name' => 'listSections']);
+        $role->givePermissionTo($permission);
 
         $role=Role::create(['name' => 'TeachingStaff']);
-        $permission = Permission::create(['guard_name' => 'web','name' => 'addStudent']);
+        $permission = Permission::create(['name' => 'addStudent']);
         $role->givePermissionTo($permission);
-        $permission = Permission::create(['guard_name' => 'web','name' => 'editStudent']);
+        $permission = Permission::create(['name' => 'editStudent']);
         $role->givePermissionTo($permission);
-        $permission = Permission::create(['guard_name' => 'web','name' => 'deleteStudent']);
+        $permission = Permission::create(['name' => 'deleteStudent']);
         $role->givePermissionTo($permission);
-        $permission = Permission::create(['guard_name' => 'web','name' => 'viewStudent']);
+        $permission = Permission::create(['name' => 'viewStudent']);
         $role->givePermissionTo($permission);
         Role::create(['name' => 'AdministrationStaff']);
-<<<<<<< HEAD
-=======
-
->>>>>>> a4bd76dee440c50b817523bfc6e90c50980545b2
         Role::create(['name' => 'librarian']);
     }
 }
