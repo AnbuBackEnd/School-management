@@ -78,7 +78,36 @@ class SectionController extends Controller
         }
         return response($response, $code);
     }
-
+    public function deleteSection($sectionId)
+    {
+        $sectionId=$this->decrypt($sectionId);
+        $user=Auth::User();
+        if($user->hasPermissionTo('deleteSections'))
+        {
+            if (Section::where('id', '=', $sectionId)->count() == 1)
+            {
+                Section::where('id',$sectionId)->update(array('deleteStatus' => 1));
+                $output['status'] = true;
+                $output['message'] = 'Successfully Deleted';
+                $response['data']=$this->encryptData($output);
+                $code=200;
+            }
+            else
+            {
+                $output['status'] = false;
+                $output['message'] = 'No Records Found';
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+    }
     public function getSectionRecord($sectionId)
     {
         $sectionId=$this->decrypt($sectionId);

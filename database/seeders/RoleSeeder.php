@@ -36,6 +36,8 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo($permission);
         $permission = Permission::create(['name' => 'listSections']);
         $role->givePermissionTo($permission);
+        $permission = Permission::create(['name' => 'listStandards']);
+        $role->givePermissionTo($permission);
 
         $role=Role::create(['name' => 'TeachingStaff']);
         $permission = Permission::create(['name' => 'addStudent']);

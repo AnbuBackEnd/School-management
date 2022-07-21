@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStandardsTable extends Migration
+class AddNewColumnDeleteStatus extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateStandardsTable extends Migration
      */
     public function up()
     {
-        Schema::create('standards', function(Blueprint $table) {
-            $table->id();
-            $table->string('standard_name')->nullable();
-            $table->text('encrypt_id')->nullable();
-            $table->timestamps();
+        Schema::table('sections', function (Blueprint $table) {
+            $table->integer('deleteStatus')->default(0);
         });
     }
 
@@ -28,6 +25,8 @@ class CreateStandardsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('standards');
+        Schema::table('sections', function (Blueprint $table) {
+            //
+        });
     }
 }
