@@ -15,6 +15,7 @@ class AddNewColumnEncryptedId extends Migration
     {
         Schema::table('sections', function (Blueprint $table) {
             $table->text('encrypt_id')->nullable();
+
         });
     }
 
