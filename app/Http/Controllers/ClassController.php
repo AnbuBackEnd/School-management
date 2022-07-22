@@ -7,6 +7,7 @@ use Auth;
 use Hash;
 use Input;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use App\Models\user;
 use App\Models\standard;
 use Spatie\Permission\Models\Role;
@@ -106,5 +107,192 @@ class ClassController extends Controller
 
         }
     }
+    public function updateClasses(Request $request)
+    {
+
+        $user=Auth::User();
+        if($user->hasPermissionTo('editSections'))
+        {
+            $rules = [
+                'sectionId' => 'required',
+                'standardId' => 'required',
+                'ClassId' => 'required',
+            ];
+            $input=$this->decrypt($request->input('input'));
+            $validator = Validator::make((array)$input, $rules);
+            if(!$validator->fails())
+            {
+                if (Classes::where('id', '=', $this->decrypt($input->ClassId))->count() == 1)
+                {
+                    Classes::where('id',$this->decrypt($input->ClassId))->update(array('section_id' => $this->decrypt($input->sectionId),'standard_id' => $this->decrypt($input->standardId),'encrypt_section_id' => $input->sectionId,'encrypt_standard_id' => $input->standardId));
+                    $output['status']=true;
+                    $output['message']='Section Successfully Updated';
+                    $response['data']=$this->encryptData($output);
+                    $code = 200;
+                }
+                else
+                {
+                    $output['status']=true;
+                    $output['message']='Something went wrong. Please try again later.';
+                    $response['data']=$this->encryptData($output);
+                    $code = 400;
+                }
+            }
+            else
+            {
+                $output['status']=false;
+                $output['message']=[$validator->errors()->first()];
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+        return response($response, $code);
+
+    }
+    public function deleteClasses($ClassesId)
+    {
+        $ClassesId=$this->decrypt($ClassesId);
+        $user=Auth::User();
+        if($user->hasPermissionTo('deleteSections'))
+        {
+            if (Classes::where('id', '=', $ClassesId)->count() == 1)
+            {
+                Classes::where('id',$ClassesId)->update(array('deleteStatus' => 1));
+                $output['status'] = true;
+                $output['message'] = 'Successfully Deleted';
+                $response['data']=$this->encryptData($output);
+                $code=200;
+            }
+            else
+            {
+                $output['status'] = false;
+                $output['message'] = 'No Records Found';
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+    }
+
+    public function getClassesRecord($ClassesId)
+    {
+        $ClassesId=$this->decrypt($ClassesId);
+        $user=Auth::User();
+        if($user->hasPermissionTo('editClasses'))
+        {
+            $classes = DB::table('classes')
+                ->where('id',$ClassesId)
+                ->join('sections', 'classes.section_id', '=', 'sections.id')
+                ->join('standards', 'classes.standard_id', '=', 'standards.id')
+                ->select('sections.section_name', 'standards.standard_name', 'classes.encrypt_section_id','classes.encrypt_standard_id')
+                ->get();
+
+
+            if ($classes) {
+                $output['status'] = true;
+                $output['classes'] = $classes;
+                $output['message'] = 'Successfully Retrieved';
+                $response['data']=$this->encryptData($output);
+                $code=200;
+            }
+            else
+            {
+                $output['status'] = false;
+                $output['message'] = 'No Records Found';
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+        return response($response, $code);
+    }
+    public function getAllClasses()
+    {
+        $user=Auth::User();
+        if($user->hasPermissionTo('viewClasses'))
+        {
+            $classes = DB::table('classes')
+                ->join('sections', 'classes.section_id', '=', 'sections.id')
+                ->join('standards', 'classes.standard_id', '=', 'standards.id')
+                ->select('sections.section_name', 'standards.standard_name', 'classes.encrypt_section_id','classes.encrypt_standard_id')
+                ->paginate(10);
+            if ($classes) {
+                $output['status'] = true;
+                $output['classes'] = $classes;
+                $output['message'] = 'Successfully Retrieved';
+                $response['data']=$this->encryptData($output);
+                $code=200;
+            }
+            else
+            {
+                $output['status'] = false;
+                $output['message'] = 'No Records Found';
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+        return response($response, $code);
+    }
+    public function listAllClasses()
+    {
+        $user=Auth::User();
+        if($user->hasPermissionTo('listClasses'))
+        {
+            $classes = DB::table('classes')
+                ->join('sections', 'classes.section_id', '=', 'sections.id')
+                ->join('standards', 'classes.standard_id', '=', 'standards.id')
+                ->select('sections.section_name', 'standards.standard_name', 'classes.encrypt_section_id','classes.encrypt_standard_id')
+                ->get();
+            if ($classes) {
+                $output['status'] = true;
+                $output['classes'] = $classes;
+                $output['message'] = 'Successfully Retrieved';
+                $response['data']=$this->encryptData($output);
+                $code=200;
+            }
+            else
+            {
+                $output['status'] = false;
+                $output['message'] = 'No Records Found';
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+        return response($response, $code);
+    }
+
 
 }
