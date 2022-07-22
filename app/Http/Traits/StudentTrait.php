@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Traits;
 use App\Models\Student;
+use Illuminate\Support\Facades\DB;
 trait StudentTrait
 {
     public function encrypt($input)
@@ -11,6 +12,15 @@ trait StudentTrait
 
         return base64_encode(openssl_encrypt($jsonvalue, 'AES-256-CBC', $key, OPENSSL_RAW_DATA,$iv));
     }
+    public function getUserName($user_id)
+    {
+        $users = DB::table('users')->where('id','='.$user_id)->get('name');
+        if($users)
+        {
+            return $users[0]['name'];
+        }
+    }
+
     public function encrypt_sample(){
 		$str=new stdClass;
 		 $str->name='bristo Marticulation School';

@@ -202,6 +202,7 @@ class UserController extends Controller
         $user=Auth::user();
         if($user->hasRole('Admin'))
         {
+            $admin_id=$user->id;
             $rules = [
                 'name' => 'required',
                 'gender' => 'required',
@@ -227,6 +228,7 @@ class UserController extends Controller
                     $user->dob = $input->dob;
                     $user->phone = $input->phone;
                     $user->email = $input->email;
+                    $user->admin_id=$admin_id;
                     $user->password = Hash::make($input->password);
 
                     $role_id=Role::where('name',$input->role)->get('id');
@@ -235,10 +237,8 @@ class UserController extends Controller
                     $user->role=$role_id[0]['id'];
                     $user->role_text=$input->role;
                     $user->assignRole($input->role);
-
                     if ($user->save())
                     {
-
                         $output['status']=true;
                         $output['message']='Successfully Added';
                         $output['userData']=$user;

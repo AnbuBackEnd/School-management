@@ -62,11 +62,14 @@ class ClassController extends Controller
             {
                 if (Classes::where('section_id', '=', $this->decrypt($input->sectionId))->where('standard_id', '=', $this->decrypt($input->standardId))->where('user_id','=',$user->id)->count() == 0)
                 {
+                    $section_name = Classes::with(['section'])->where('section_id','=',$this->decrypt($input->sectionId))->get(['section_name'])[0]['section_name'];
+                    $standard_name = Classes::with(['standard'])->where('standard_id','=',$this->decrypt($input->standardId))->get(['standard_name'])[0]['standard_name'];
                     $classes = new Classes;
                     $classes->section_id=$this->decrypt($input->sectionId);
                     $classes->encrypt_section_id=$input->sectionId;
                     $classes->standard_id=$this->decrypt($input->standardId);
                     $classes->encrypt_standard_id=$input->standardId;
+                    $classes->class_name=$standard_name.'-'.$section_name;
                     $classes->user_id=$user->id;
                     if($classes->save())
                     {
@@ -193,13 +196,7 @@ class ClassController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('editClasses'))
         {
-            $classes = DB::table('classes')
-                ->where('id',$ClassesId)
-                ->join('sections', 'classes.section_id', '=', 'sections.id')
-                ->join('standards', 'classes.standard_id', '=', 'standards.id')
-                ->select('sections.section_name', 'standards.standard_name', 'classes.encrypt_section_id','classes.encrypt_standard_id')
-                ->get();
-
+            $classes = Classes::with(['section','standard'])->where('id','=',$ClassesId)->get(['section_name','encrypt_section_id','standard_name','encrypt_standard_id']);
 
             if ($classes) {
                 $output['status'] = true;
@@ -230,11 +227,7 @@ class ClassController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('viewClasses'))
         {
-            $classes = DB::table('classes')
-                ->join('sections', 'classes.section_id', '=', 'sections.id')
-                ->join('standards', 'classes.standard_id', '=', 'standards.id')
-                ->select('sections.section_name', 'standards.standard_name', 'classes.encrypt_section_id','classes.encrypt_standard_id')
-                ->paginate(10);
+            $classes =Classes::with(['section','standard'])->paginate(10,['section_name','encrypt_section_id','standard_name','encrypt_standard_id']);
             if ($classes) {
                 $output['status'] = true;
                 $output['classes'] = $classes;
@@ -264,11 +257,7 @@ class ClassController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('listClasses'))
         {
-            $classes = DB::table('classes')
-                ->join('sections', 'classes.section_id', '=', 'sections.id')
-                ->join('standards', 'classes.standard_id', '=', 'standards.id')
-                ->select('sections.section_name', 'standards.standard_name', 'classes.encrypt_section_id','classes.encrypt_standard_id')
-                ->get();
+            $classes = Classes::with(['section','standard'])->get(['section_name','encrypt_section_id','standard_name','encrypt_standard_id']);
             if ($classes) {
                 $output['status'] = true;
                 $output['classes'] = $classes;
