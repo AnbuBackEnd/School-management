@@ -43,8 +43,6 @@ class ClassController extends Controller
             $response['data']=$this->encryptData($output);
             $code=400;
         }
-
-
         return response($response, $code);
     }
     public function addClasses(Request $request)

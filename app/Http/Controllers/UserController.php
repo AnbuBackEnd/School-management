@@ -31,6 +31,7 @@ class UserController extends Controller
             if (User::where('email', '=', $input['email'])->count() == 0)
             {
                 $output=array();
+                $outputfinal=array();
                 $user = new User;
                 $user->name = $input['name'];
                 $user->admin_name = $input['admin_name'];
@@ -46,7 +47,8 @@ class UserController extends Controller
                     $user->assignRole('Admin');
                     $output['status']=true;
                     $output['message']='Successfully Added';
-                    $output['userData']=$user;
+
+                    $output['response']=$user;
                     $response['data']=$this->encryptData($output);
                     //$response=$this->encrypt($output);
                     $code = 200;
@@ -138,7 +140,7 @@ class UserController extends Controller
                 if (Hash::check($input->password, $isExist->password))
                 {
                     $output['status']=true;
-                    $output['token'] = $this->getAccessToken($isExist);
+                    $output['response'] = $this->getAccessToken($isExist);
                     $output['message']='Successfully Logined';
                     $response['data']=$this->encryptData($output);
                     $code = 200;

@@ -15,6 +15,7 @@ use Input;
 use App\Http\Traits\StudentTrait;
 class SubjectController extends Controller
 {
+    use StudentTrait;
     public function addSubject(Request $request)
     {
         $user=Auth::User();
@@ -36,9 +37,10 @@ class SubjectController extends Controller
                     {
                        $subId=$this->encryptData($subject->id);
                        Subject::where('id',$subject->id)->update(array('encrypt_id' => $subId));
+                       $subjectObject = Subject::where('id',$subject->id)->first(['encrypt_id AS subject_id', 'subject_name']);
                         $output['status']=true;
                         $output['message']='Subject Successfully Added';
-                        $output['userData']=$section;
+                        $output['response']=$subjectObject;
                         $response['data']=$this->encryptData($output);
                         $code = 200;
                     }
@@ -81,7 +83,7 @@ class SubjectController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('deleteSubjects'))
         {
-            if (Subject::where('id', '=', $subjectId)->count() == 1)
+            if (Subject::where('id', '=', $subjectId)->where('deleteStatus',0)->count() == 1)
             {
                 Subject::where('id',$subjectId)->update(array('deleteStatus' => 1));
                 $output['status'] = true;
@@ -104,19 +106,20 @@ class SubjectController extends Controller
             $response['data']=$this->encryptData($output);
             $code=400;
         }
+        return response($response, $code);
     }
     public function getSubjectRecord($subjectId)
     {
         $subjectId=$this->decrypt($subjectId);
         $user=Auth::User();
-        if($user->hasPermissionTo('editSections'))
+        if($user->hasPermissionTo('editSubjects'))
         {
-            $subject = Subject::where('id',$subjectId)->first(['encrypt_id AS subject_id', 'subject_name']);
+            $subject = Subject::where('id',$subjectId)->where('deleteStatus',0)->where('user_id',$user->id)->first(['encrypt_id AS subject_id', 'subject_name']);
 
-            if (isset($section->section_id)) {
+            if (isset($subject->subject_id)) {
                 $output['status'] = true;
-                $output['subject'] = $subject;
                 $output['message'] = 'Successfully Retrieved';
+                $output['response'] = $subject;
                 $response['data']=$this->encryptData($output);
                 $code=200;
             }
@@ -143,11 +146,11 @@ class SubjectController extends Controller
         if($user->hasPermissionTo('viewSubjects'))
         {
            // $section = Section::all(['encrypt_id AS section_id', 'section_name']);
-            $subject = Subject::where('user_id','=',$user->id)->paginate(10,['encrypt_id AS subject_id', 'subject_name']);
-            if ($subject) {
+            $subject = Subject::where('user_id','=',$user->id)->where('deleteStatus',0)->paginate(10,['encrypt_id AS subject_id', 'subject_name']);
+            if (isset($subject->subject_id)) {
 
                 $output['status'] = true;
-                $output['subject'] = $subject;
+                $output['response'] = $subject;
                 $output['message'] = 'Successfully Retrieved';
                 $response['data']=$this->encryptData($output);
                 $code=200;
@@ -175,9 +178,9 @@ class SubjectController extends Controller
         if($user->hasPermissionTo('listSubjects'))
         {
             $subject = Subject::all(['encrypt_id AS subject_id', 'subject_name']);
-            if ($subject) {
+            if (isset($subject->subject_id)) {
                 $output['status'] = true;
-                $output['subject'] = $subject;
+                $output['response'] = $subject;
                 $output['message'] = 'Successfully Retrieved';
                 $response['data']=$this->encryptData($output);
                 $code=200;
@@ -216,7 +219,7 @@ class SubjectController extends Controller
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if (Subject::where('id', '=', $this->decrypt($input->subjectId))->where('user_id','=',$user->id)->count() == 1)
+                if (Subject::where('id', '=', $this->decrypt($input->subjectId))->where('user_id','=',$user->id)->where('deleteStatus',0)->count() == 1)
                 {
                     Subject::where('id',$this->decrypt($input->subjectId))->update(array('subject_name' => $input->subjectName));
                     $output['status']=true;

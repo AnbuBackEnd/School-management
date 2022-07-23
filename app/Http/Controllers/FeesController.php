@@ -12,36 +12,37 @@ use Auth;
 use Hash;
 use Input;
 use App\Http\Traits\StudentTrait;
-class SectionController extends Controller
+
+class FeesController extends Controller
 {
-    use StudentTrait;
-    public function addSection(Request $request)
+    public function addFeesStructureCatagory(Request $request)
     {
         $user=Auth::User();
-        if($user->hasPermissionTo('addSections'))
+        if($user->hasPermissionTo('addFeesStructureCatagory'))
         {
             $rules = [
-                'sectionName' => 'required',
-                'active' => 'required',
+                'feesStrutureCatagory' => 'required',
             ];
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if (Section::where('section_name', '=', $input->sectionName)->count() == 0)
+                if (FeesStructureCatagory::where('feesStrutureCatagory', '=', $input->feesStrutureCatagory)->where('deleteStatus',0)->count() == 0)
                 {
-                    $section = new Section;
-                    $section->section_name=$input->sectionName;
-                    $section->active=$input->active;
-                    $section->user_id=$user->id;
-                    if($section->save())
+                    $fees = new FeesStructureCatagory;
+                    $fees->feesStrutureCatagory=$input->feesStrutureCatagory;
+                    $fees->duration=$input->duration;
+                    $fees->class_id=$input->classId;
+                    $fees->amount=$input->amount;
+                    $fees->user_id=$user->id;
+                    if($fees->save())
                     {
-                       $secId=$this->encryptData($section->id);
-                       Section::where('id',$section->id)->update(array('encrypt_id' => $secId));
-                       $sectionObject = Section::where('id',$section->id)->first(['encrypt_id AS section_id', 'section_name']);
+                       $feesId=$this->encryptData($fees->id);
+                       FeesStructureCatagory::where('id',$fees->id)->update(array('encrypt_id' => $feesId));
+                       $feesObject = FeesStructureCatagory::where('id',$fees->id)->first(['encrypt_id AS feesStructureCatagory_id', 'feesStrutureCatagory AS catagory_name']);
                         $output['status']=true;
                         $output['message']='Section Successfully Added';
-                        $output['response']=$sectionObject;
+                        $output['response']=$feesObject;
                         $response['data']=$this->encryptData($output);
                         $code = 200;
                     }
@@ -79,15 +80,15 @@ class SectionController extends Controller
         }
         return response($response, $code);
     }
-    public function deleteSection($sectionId)
+    public function deleteFeesStructureCatagory($FeesId)
     {
-        $sectionId=$this->decrypt($sectionId);
+        $FeesId=$this->decrypt($FeesId);
         $user=Auth::User();
-        if($user->hasPermissionTo('deleteSections'))
+        if($user->hasPermissionTo('deleteFeesStrutureCatagory'))
         {
-            if (Section::where('id', '=', $sectionId)->where('deleteStatus',0)->count() == 1)
+            if (FeesStructureCatagory::where('id', '=', $FeesId)->where('deleteStatus',0)->count() == 1)
             {
-                Section::where('id',$sectionId)->update(array('deleteStatus' => 1));
+                FeesStructureCatagory::where('id',$FeesId)->update(array('deleteStatus' => 1));
                 $output['status'] = true;
                 $output['message'] = 'Successfully Deleted';
                 $response['data']=$this->encryptData($output);
@@ -110,14 +111,14 @@ class SectionController extends Controller
         }
         return response($response, $code);
     }
-    public function getSectionRecord($sectionId)
+    public function getFeesStructureCatagory($feesId)
     {
-        $sectionId=$this->decrypt($sectionId);
+        $feesId=$this->decrypt($feesId);
         $user=Auth::User();
-        if($user->hasPermissionTo('editSections'))
+        if($user->hasPermissionTo('editFeesStructureCatagory'))
         {
-            $section = Section::where('id',$sectionId)->where('deleteStatus',0)->first(['encrypt_id AS section_id', 'section_name']);
-            if (isset($section->section_id)) {
+            $Fees = FeesStructureCatagory::where('id',$feesId)->where('deleteStatus',0)->first(['encrypt_id AS feesStructureCatagory_id', 'feesStrutureCatagory AS catagory_name']);
+            if (isset($Fees->feesStructureCatagory_id)) {
                 $output['status'] = true;
                 $output['response'] = $section;
                 $output['message'] = 'Successfully Retrieved';
@@ -141,18 +142,17 @@ class SectionController extends Controller
         }
         return response($response, $code);
     }
-
-    public function getAllSections()
+    public function getAllFeesStructurecatagory()
     {
         $user=Auth::User();
-        if($user->hasPermissionTo('viewSections'))
+        if($user->hasPermissionTo('viewFeesStructureCatagory'))
         {
            // $section = Section::all(['encrypt_id AS section_id', 'section_name']);
-            $section = Section::where('deleteStatus',0)->where('user_id',$user->id)->paginate(10,['encrypt_id AS section_id', 'section_name']);
-            if (isset($section->section_id)) {
+            $Fees = FeesStructureCatagory::where('deleteStatus',0)->where('user_id',$user->id)->paginate(10,['encrypt_id AS feesStructureCatagory_id', 'feesStrutureCatagory AS catagory_name']);
+            if (isset($Fees->feesStructureCatagory_id)) {
 
                 $output['status'] = true;
-                $output['response'] = $section;
+                $output['response'] = $Fees;
                 $output['message'] = 'Successfully Retrieved';
                 $response['data']=$this->encryptData($output);
                 $code=200;
@@ -174,15 +174,15 @@ class SectionController extends Controller
         }
         return response($response, $code);
     }
-    public function listAllSections()
+    public function listAllFeesStructureCatagory()
     {
         $user=Auth::User();
-        if($user->hasPermissionTo('listSections'))
+        if($user->hasPermissionTo('listFeesStrutureCatagory'))
         {
-            $section = Section::where('deleteStatus',0)->where('user_id',$user->id)->get(['encrypt_id AS section_id', 'section_name']);
-            if (isset($section->section_id)) {
+            $Fees = FeesStructureCatagory::where('deleteStatus',0)->where('user_id',$user->id)->get(['encrypt_id AS feesStructureCatagory_id', 'feesStrutureCatagory AS catagory_name']);
+            if (isset($Fees->feesStructureCatagory_id)) {
                 $output['status'] = true;
-                $output['response'] = $section;
+                $output['response'] = $Fees;
                 $output['message'] = 'Successfully Retrieved';
                 $response['data']=$this->encryptData($output);
                 $code=200;
@@ -208,22 +208,20 @@ class SectionController extends Controller
     }
     public function updateSection(Request $request)
     {
-
         $user=Auth::User();
-        if($user->hasPermissionTo('editSections'))
+        if($user->hasPermissionTo('editFeesStructureCatagory'))
         {
             $rules = [
-                'sectionName' => 'required',
-                'active' => 'required',
-                'sectionId' => 'required',
+                'feesStrutureCatagory' => 'required',
+                'editId' => 'required|integer',
             ];
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if (Section::where('id', '=', $this->decrypt($input->sectionId))->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
+                if (FeesStructureCatagory::where('id', '=', $this->decrypt($input->editId))->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
                 {
-                    Section::where('id',$this->decrypt($input->sectionId))->update(array('section_name' => $input->sectionName,'active' => $input->active));
+                    FeesStructureCatagory::where('id',$this->decrypt($input->editId))->update(array('feesStructureCatagory' => $input->feesStrutureCatagory));
                     $output['status']=true;
                     $output['message']='Section Successfully Updated';
                     $response['data']=$this->encryptData($output);

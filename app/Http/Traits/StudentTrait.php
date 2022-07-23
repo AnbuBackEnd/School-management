@@ -44,7 +44,6 @@ trait StudentTrait
         else{
             $encrypted = base64_encode(openssl_encrypt(json_encode($content), 'AES-256-CBC', $key, OPENSSL_RAW_DATA,$iv));
         }
-
         return $encrypted;
 
     }
@@ -57,9 +56,11 @@ trait StudentTrait
     public function getAccessToken($user)
     {
         $token = $user->createToken('API Token')->accessToken;
-        $result['user'] = $user;
-        $result['accessToken'] = $token;
+        $user->accessToken=$token;
 
-        return $result;
+
+
+
+        return $user;
     }
 }
