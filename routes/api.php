@@ -6,6 +6,7 @@ use App\Http\controllers\UserController;
 use App\Http\controllers\SectionController;
 use App\Http\controllers\SubjectController;
 use App\Http\controllers\ClassController;
+use App\Http\controllers\StudentAttendance;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,3 +45,4 @@ Route::get('/listAllSubjects', [SubjectController::class, 'listAllSubjects'])->m
 
 //standards
 Route::get('/listAllStandards', [ClassController::class, 'listAllStandards'])->middleWare('auth:api');
+Route::get('/putAttendance', [StudentAttendance::class, 'putAttendance']);

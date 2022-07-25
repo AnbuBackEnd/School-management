@@ -68,6 +68,8 @@ class ClassController extends Controller
                     $classes->standard_id=$this->decrypt($input->standardId);
                     $classes->encrypt_standard_id=$input->standardId;
                     $classes->class_name=$standard_name.'-'.$section_name;
+                    $classes->standard_name=$standard_name;
+                    $classes->section_name=$section_name;
                     $classes->user_id=$user->id;
                     if($classes->save())
                     {
@@ -123,9 +125,12 @@ class ClassController extends Controller
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
+
                 if (Classes::where('id', '=', $this->decrypt($input->ClassId))->count() == 1)
                 {
-                    Classes::where('id',$this->decrypt($input->ClassId))->update(array('section_id' => $this->decrypt($input->sectionId),'standard_id' => $this->decrypt($input->standardId),'encrypt_section_id' => $input->sectionId,'encrypt_standard_id' => $input->standardId));
+                    $section_name = Classes::with(['section'])->where('section_id','=',$this->decrypt($input->sectionId))->get(['section_name'])[0]['section_name'];
+                    $standard_name = Classes::with(['standard'])->where('standard_id','=',$this->decrypt($input->standardId))->get(['standard_name'])[0]['standard_name'];
+                    Classes::where('id',$this->decrypt($input->ClassId))->update(array('section_id' => $this->decrypt($input->sectionId),'standard_id' => $this->decrypt($input->standardId),'encrypt_section_id' => $input->sectionId,'encrypt_standard_id' => $input->standardId,'section_name' => $section_name,'standard_name' => $standard_name));
                     $output['status']=true;
                     $output['message']='Section Successfully Updated';
                     $response['data']=$this->encryptData($output);
@@ -163,7 +168,7 @@ class ClassController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('deleteSections'))
         {
-            if (Classes::where('id', '=', $ClassesId)->count() == 1)
+            if (Classes::where('id', '=', $ClassesId)->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
             {
                 Classes::where('id',$ClassesId)->update(array('deleteStatus' => 1));
                 $output['status'] = true;
@@ -194,7 +199,7 @@ class ClassController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('editClasses'))
         {
-            $classes = Classes::with(['section','standard'])->where('id','=',$ClassesId)->get(['section_name','encrypt_section_id','standard_name','encrypt_standard_id']);
+            $classes = Classes::with(['section','standard'])->where('id','=',$ClassesId)->get();
 
             if ($classes) {
                 $output['status'] = true;
@@ -225,7 +230,7 @@ class ClassController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('viewClasses'))
         {
-            $classes =Classes::with(['section','standard'])->paginate(10,['section_name','encrypt_section_id','standard_name','encrypt_standard_id']);
+            $classes =Classes::with(['section','standard'])->paginate(10);
             if ($classes) {
                 $output['status'] = true;
                 $output['classes'] = $classes;
@@ -255,7 +260,7 @@ class ClassController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('listClasses'))
         {
-            $classes = Classes::with(['section','standard'])->get(['section_name','encrypt_section_id','standard_name','encrypt_standard_id']);
+            $classes = Classes::with(['section','standard'])->get();
             if ($classes) {
                 $output['status'] = true;
                 $output['classes'] = $classes;

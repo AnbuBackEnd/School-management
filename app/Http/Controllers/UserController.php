@@ -245,7 +245,6 @@ class UserController extends Controller
                         $output['message']='Successfully Added';
                         $output['userData']=$user;
                         $response['data']=$this->encryptData($output);
-                        //$response=$this->encrypt($output);
                         $code = 200;
                     }
                     else
