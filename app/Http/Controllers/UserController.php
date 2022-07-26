@@ -232,7 +232,6 @@ class UserController extends Controller
                     $user->email = $input->email;
                     $user->admin_id=$admin_id;
                     $user->password = Hash::make($input->password);
-
                     $role_id=Role::where('name',$input->role)->get('id');
 
 

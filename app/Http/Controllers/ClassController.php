@@ -114,7 +114,7 @@ class ClassController extends Controller
     {
 
         $user=Auth::User();
-        if($user->hasPermissionTo('editSections'))
+        if($user->hasPermissionTo('editClasses'))
         {
             $rules = [
                 'sectionId' => 'required',
@@ -166,7 +166,7 @@ class ClassController extends Controller
     {
         $ClassesId=$this->decrypt($ClassesId);
         $user=Auth::User();
-        if($user->hasPermissionTo('deleteSections'))
+        if($user->hasPermissionTo('deleteClasses'))
         {
             if (Classes::where('id', '=', $ClassesId)->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
             {
