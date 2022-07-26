@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\user;
 use App\Models\standard;
+use App\Models\ExamRecord;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Http\Traits\StudentTrait;
@@ -23,7 +24,7 @@ class ExamController extends Controller
         if($user->hasPermissionTo('addExams'))
         {
             $rules = [
-                'exam_name' => 'required',
+                'examName' => 'required',
             ];
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
@@ -204,10 +205,10 @@ class ExamController extends Controller
 
         return response($response, $code);
     }
-    public function updateSection(Request $request)
+    public function updateExam(Request $request)
     {
         $user=Auth::User();
-        if($user->hasPermissionTo('editSections'))
+        if($user->hasPermissionTo('editExams'))
         {
             $rules = [
                 'examName' => 'required',
@@ -228,6 +229,255 @@ class ExamController extends Controller
                 else
                 {
                     $output['statu']=strue;
+                    $output['message']='Something went wrong. Please try again later.';
+                    $response['data']=$this->encryptData($output);
+                    $code = 400;
+                }
+            }
+            else
+            {
+                $output['status']=false;
+                $output['message']=[$validator->errors()->first()];
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+        return response($response, $code);
+
+    }
+    public function addExamRecords(Request $request)
+    {
+        $user=Auth::User();
+        if($user->hasPermissionTo('addExams'))
+        {
+            $rules = [
+                'examId' => 'required',
+                'classId' => 'required',
+                'subjectId' => 'required',
+                'date' => 'required | date',
+            ];
+            $input=$this->decrypt($request->input('input'));
+            $validator = Validator::make((array)$input, $rules);
+            if(!$validator->fails())
+            {
+                if (ExamRecord::where('exam_id', '=', $this->decrypt($input->examId))->where('subject_id','=',$this->decrypt($input->subjectId))->where('class_id','=',$this->decrypt($input->classId))->count() == 0)
+                {
+                    $exam = new ExamRecord;
+                    $exam->exam_id=$input->examId;
+                    $exam->class_id=$input->classId;
+                    $exam->subject_id=$input->subjectId;
+                    $exam->date=date('Y-m-d',strtotime($input->date));
+                    $exam->class_id_encrypt=$this->encrypt($input->classId);
+                    $exam->subject_id_encrypt=$this->encrypt($input->subjectId);
+                    $exam->exam_id_encrypt=$this->encrypt($input->examId);
+                    $exam->user_id=$user->id;
+                    if($exam->save())
+                    {
+                       $examId=$this->encryptData($exam->id);
+                       ExamRecord::where('id',$exam->id)->update(array('encrypt_id' => $examId));
+
+                        $output['status']=true;
+                        $output['message']='Exam Record Successfully Added';
+                        $response['data']=$this->encryptData($output);
+                        $code = 200;
+                    }
+                    else
+                    {
+                        $output['status']=true;
+                        $output['message']='Something went wrong. Please try again later.';
+                        $response['data']=$this->encryptData($output);
+                        $code = 400;
+                    }
+
+                }
+                else
+                {
+                    $output['status']=false;
+                    $output['message']='Already Exists';
+                    $response['data']=$this->encryptData($output);
+                    $code = 409;
+                }
+            }
+            else
+            {
+                $output['status']=false;
+                $output['message']=[$validator->errors()->first()];
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+        return response($response, $code);
+    }
+
+    public function deleteExamRecord($examId)
+    {
+        $examId=$this->decrypt($examId);
+        $user=Auth::User();
+        if($user->hasPermissionTo('deleteExams'))
+        {
+            if (ExamRecord::where('id', '=', $examId)->where('deleteStatus',0)->count() == 1)
+            {
+                ExamRecord::where('id',$examId)->update(array('deleteStatus' => 1));
+                $output['status'] = true;
+                $output['message'] = 'Successfully Deleted';
+                $response['data']=$this->encryptData($output);
+                $code=200;
+            }
+            else
+            {
+                $output['status'] = false;
+                $output['message'] = 'No Records Found';
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+        return response($response, $code);
+    }
+
+    public function getExamRecord($examId)
+    {
+        $examId=$this->decrypt($examId);
+        $user=Auth::User();
+        if($user->hasPermissionTo('editExams'))
+        {
+            $exam = ExamRecord::with(['subject','class_','exam'])->where('id','=',$exam_id)->where('user_id','=',$user->id)->get();
+            if (isset($exam->exam_id)) {
+                $output['status'] = true;
+                $output['response'] = $exam;
+                $output['message'] = 'Successfully Retrieved';
+                $response['data']=$this->encryptData($output);
+                $code=200;
+            }
+            else
+            {
+                $output['status'] = false;
+                $output['message'] = 'No Records Found';
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+        return response($response, $code);
+    }
+    public function getAllExamRecord()
+    {
+        $user=Auth::User();
+        if($user->hasPermissionTo('viewExams'))
+        {
+           // $section = Section::all(['encrypt_id AS section_id', 'section_name']);
+            $exam = ExamRecord::where('deleteStatus',0)->where('user_id',$user->id)->paginate(10);
+            if (isset($exam->exam_id)) {
+
+                $output['status'] = true;
+                $output['response'] = $exam;
+                $output['message'] = 'Successfully Retrieved';
+                $response['data']=$this->encryptData($output);
+                $code=200;
+            }
+            else
+            {
+                $output['status'] = false;
+                $output['message'] = 'No Records Found';
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+        return response($response, $code);
+    }
+    public function listAllExamRecords()
+    {
+        $user=Auth::User();
+        if($user->hasPermissionTo('listExams'))
+        {
+            $exam = ExamRecord::where('deleteStatus',0)->where('user_id',$user->id)->get();
+            if (isset($exam->exam_id)) {
+                $output['status'] = true;
+                $output['response'] = $exam;
+                $output['message'] = 'Successfully Retrieved';
+                $response['data']=$this->encryptData($output);
+                $code=200;
+            }
+            else
+            {
+                $output['status'] = false;
+                $output['message'] = 'No Records Found';
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+
+
+        return response($response, $code);
+    }
+    public function updateSection(Request $request)
+    {
+
+        $user=Auth::User();
+        if($user->hasPermissionTo('editExams'))
+        {
+            $rules = [
+                'examId' => 'required',
+                'classId' => 'required',
+                'subjectId' => 'required',
+                'date' => 'required | date',
+                'editId' => 'required',
+            ];
+            $input=$this->decrypt($request->input('input'));
+            $validator = Validator::make((array)$input, $rules);
+            if(!$validator->fails())
+            {
+                if (ExamRecord::where('id', '=', $this->decrypt($input->editId))->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
+                {
+                    ExamRecord::where('id',$this->decrypt($input->editId))->update(array('exam_id' => $this->decrypt($input->examId),'class_id' =>  $this->decrypt($input->classId),'subject_id' =>  $this->decrypt($input->subjectId),'date' => date('Y-m-d',strtotime($input->date)),'exam_id_encrypt' => $input->examId,'class_id_encrypt' => $input->classId,'subject_id_encrypt' => $input->subjectId));
+                    $output['status']=true;
+                    $output['message']='Exam Record Successfully Updated';
+                    $response['data']=$this->encryptData($output);
+                    $code = 200;
+                }
+                else
+                {
+                    $output['status']=true;
                     $output['message']='Something went wrong. Please try again later.';
                     $response['data']=$this->encryptData($output);
                     $code = 400;
