@@ -1,5 +1,4 @@
 <?php
-//composer require doctrine/dbal install package for column modification
 namespace App\Http\Controllers;
 use Auth;
 use Hash;
@@ -40,15 +39,15 @@ class UserController extends Controller
                 $user->email = $input['email'];
                 $user->password = Hash::make($input['password']);
                 $user->otp_code= random_int(100000, 999999);
-                $user->role=2;
+                $user->role=1;
                 $user->role_text='Admin';
                 if($user->save())
                 {
                     $user->assignRole('Admin');
+                    $userId=$this->encryptData($user->id);
+                    User::where('id',$user->id)->update(array('encrypt_id' => $userId));
                     $output['status']=true;
-                    $output['message']='Successfully Added';
-
-                    $output['response']=$user;
+                    $output['message']='Otp send to Your Mail';
                     $response['data']=$this->encryptData($output);
                     //$response=$this->encrypt($output);
                     $code = 200;
@@ -133,12 +132,15 @@ class UserController extends Controller
         $validator = Validator::make((array)$input, $rules);
         if(!$validator->fails())
         {
-            $isExist = User::where('email',$input->email)->where('account_verification_status', 1)->first();
+
+            $isExist = User::where('email',$input->email)->where('deleteStatus',0)->where('account_verification_status', 1)->first();
+
 
             if (isset($isExist->id))
             {
                 if (Hash::check($input->password, $isExist->password))
                 {
+
                     $output['status']=true;
                     $output['response'] = $this->getAccessToken($isExist);
                     $output['message']='Successfully Logined';
@@ -181,7 +183,7 @@ class UserController extends Controller
         $user=Auth::user();
         if($user->hasRole('Admin'))
         {
-            $roles=Role::where('id','!=',1)->where('id','!=',2)->get('name');
+            $roles=Role::where('id','!=',1)->get('name');
             $output['status'] = true;
             $output['message'] = 'Sucessfully Retrieved';
             $output['staffsList'] = $roles;
@@ -202,23 +204,28 @@ class UserController extends Controller
     public function addStaff(Request $request)
     {
         $user=Auth::user();
-        if($user->hasRole('Admin'))
+
+        if($user->hasPermissionTo('addStaffs'))
         {
             $admin_id=$user->id;
             $rules = [
                 'name' => 'required',
                 'gender' => 'required',
                 'address' => 'required',
+                'role' => 'required',
                 'city' => 'required',
                 'dob' => 'required | date',
                 'phone' => 'required|min:10',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|min:8',
+                'classId' => 'required',
             ];
+
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
+
                 if (User::where('email', '=', $input->email)->count() == 0)
                 {
                     $output=array();
@@ -231,15 +238,18 @@ class UserController extends Controller
                     $user->phone = $input->phone;
                     $user->email = $input->email;
                     $user->admin_id=$admin_id;
+                    $user->user_id=$admin_id;
+                    $user->class_id=$input->classId;
                     $user->password = Hash::make($input->password);
                     $role_id=Role::where('name',$input->role)->get('id');
-
-
                     $user->role=$role_id[0]['id'];
                     $user->role_text=$input->role;
+                    $user->account_verification_status=1;
                     $user->assignRole($input->role);
                     if ($user->save())
                     {
+                        $userId=$this->encryptData($user->id);
+                        User::where('id',$user->id)->update(array('encrypt_id' => $userId));
                         $output['status']=true;
                         $output['message']='Successfully Added';
                         $output['userData']=$user;
@@ -279,7 +289,8 @@ class UserController extends Controller
             $output['message']='Unauthorized Access';
             $response['data']=$this->encryptData($output);
         // $response=$this->encrypt($output);
-            $code = 400221;
+            $code = 400;
+            return response($response, $code);
         }
     }
     public function decrypt_user(Request $request){

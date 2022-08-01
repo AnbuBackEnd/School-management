@@ -18,8 +18,8 @@ class CreateRequestBooksTable extends Migration
             $table->integer('catagory_id')->default(0);
             $table->integer('subcatagory_id')->default(0);
             $table->integer('book_id')->default(0);
-            $table->integer('get_date')->default(0);
-            $table->integer('return_date')->default(0);
+            $table->date('get_date')->nullable();
+            $table->date('return_date')->nullable();
             $table->integer('student_id')->default(0);
             $table->integer('class_id')->default(0);
             $table->integer('admin_id')->default(0);

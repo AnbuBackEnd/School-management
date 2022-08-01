@@ -10,14 +10,14 @@ class ExamRecord extends Model
     use HasFactory;
     public function exam()
     {
-        $this->belongsTo(exam::class,'exam_id');
+        return $this->belongsTo(exam::class,'exam_id');
     }
     public function class_()
     {
-        $this->belongsTo(classes::class,'class_id');
+        return $this->belongsTo(classes::class,'class_id');
     }
     public function subject()
     {
-        $this->belongsTo(subject::class,'subject_id');
+        return $this->belongsTo(subject::class,'subject_id');
     }
 }

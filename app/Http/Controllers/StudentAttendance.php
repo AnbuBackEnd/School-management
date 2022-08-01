@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\user;
 use App\Models\section;
 use App\Models\Fee;
+use App\Models\studentAttendance as studentAtt;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\DB;
 use Auth;
 use Hash;
 use Input;
@@ -16,32 +18,28 @@ use App\Http\Traits\StudentTrait;
 class StudentAttendance extends Controller
 {
      use StudentTrait;
-    public function putAttendance()
+    public function putAttendance(Request $request)
     {
         $user=Auth::user();
         if($user->hasPermissionTo('putAttendance'))
         {
             $this->check_attendance($user->class_id);
             $status=0;
-            $input=$this->decrypt($request->input('input'));
-            if(count((array)$input) > 0)
+            $input=(array)$this->decrypt($request->input('input'));
+
+            $datafinal=array();
+            if(count($input) > 0)
             {
                 for($i=0;$i<count($input);$i++)
                 {
-                    $validate_status=$this->validate_attendance($input[$i]);
-                    if($validate_status == 0)
-                    {
-                        $status=1;
-                    }
-                    $input[$i]['class_id']=$user->class_id;
-                    $input[$i]['date']=date('Y-m-d');
-                    $input[$i]['student_encrypt_id']=$this->encrypt($input[$i]['student_id']);
-                    $input[$i]['encrypt_class_id']=$this->encrypt($input[$i]['class_id']);
+                    $datafinal[$i]['date']=date('Y-m-d');
+                    $datafinal[$i]['student_id']=$input[$i]->student_id;
+                    $datafinal[$i]['class_id']=$input[$i]->class_id;
+                    $datafinal[$i]['present']=$input[$i]->present;
+
                 }
-            }
-            if($validate_status == 1)
-            {
-                StudentAttendance::insert($input);
+
+                studentAtt::insert($datafinal);
                 $output['status'] = true;
                 $output['message'] = 'Attendance Recorded';
                 $response['data']=$this->encryptData($output);
@@ -54,6 +52,7 @@ class StudentAttendance extends Controller
                 $response['data']=$this->encryptData($output);
                 $code=200;
             }
+
         }
         else
         {
@@ -62,10 +61,12 @@ class StudentAttendance extends Controller
             $response['data']=$this->encryptData($output);
             $code=200;
         }
+        return response($response, $code);
     }
     public function validate_attendance($input)
     {
         $rules = [
+            'classId' => 'required',
             'studentId' => 'required',
             'present' => 'required|boolean',
         ];
@@ -82,7 +83,7 @@ class StudentAttendance extends Controller
     }
     public function check_attendance($class_id)
     {
-        if (StudentAttendance::where('date', '=', date('Y-m-d'))->where('class_id',$class_id)->count() == 1)
+        if (studentAtt::where('date', '=', date('Y-m-d'))->where('class_id',$class_id)->count() > 0)
         {
             DB::table('student_attendances')->where('class_id', $class_id)->where('date',date('Y-m-d'))->delete();
         }

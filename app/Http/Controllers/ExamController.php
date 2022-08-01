@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\user;
 use App\Models\standard;
 use App\Models\ExamRecord;
+use App\Models\Exam;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Http\Traits\StudentTrait;
@@ -35,6 +36,7 @@ class ExamController extends Controller
                     $exam = new Exam;
                     $exam->exam_name=$input->examName;
                     $exam->user_id=$user->id;
+                    $exam->admin_id=$user->admin_id;
                     if($exam->save())
                     {
                        $examId=$this->encryptData($exam->id);
@@ -81,7 +83,7 @@ class ExamController extends Controller
     }
     public function deleteExam($examId)
     {
-        $examId=$this->decrypt($examId);
+
         $user=Auth::User();
         if($user->hasPermissionTo('deleteExams'))
         {
@@ -112,12 +114,11 @@ class ExamController extends Controller
     }
     public function getExam($examId)
     {
-        $examId=$this->decrypt($examId);
         $user=Auth::User();
         if($user->hasPermissionTo('editExams'))
         {
-            $exam = Exam::where('id',$examId)->where('deleteStatus',0)->first(['encrypt_id AS exam_id', 'exam_name']);
-            if (isset($exam->exam_id)) {
+            $exam = Exam::where('id',$examId)->where('deleteStatus',0)->first(['id', 'exam_name']);
+            if (isset($exam)) {
                 $output['status'] = true;
                 $output['response'] = $exam;
                 $output['message'] = 'Successfully Retrieved';
@@ -147,9 +148,9 @@ class ExamController extends Controller
         if($user->hasPermissionTo('viewExams'))
         {
            // $section = Section::all(['encrypt_id AS section_id', 'section_name']);
-            $exam = Exam::where('deleteStatus',0)->where('user_id',$user->id)->paginate(10,['encrypt_id AS exam_id', 'exam_name']);
-            if (isset($exam->exam_id)) {
-
+            $exam = Exam::where('deleteStatus',0)->where('user_id',$user->id)->where('admin_id',$user->admin_id)->paginate(10,['id', 'exam_name']);
+            if (isset($exam))
+            {
                 $output['status'] = true;
                 $output['response'] = $exam;
                 $output['message'] = 'Successfully Retrieved';
@@ -178,8 +179,8 @@ class ExamController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('listExams'))
         {
-            $exam = Exam::where('deleteStatus',0)->where('user_id',$user->id)->get(['encrypt_id AS exam_id', 'exam_name']);
-            if (isset($exam->exam_id)) {
+            $exam = Exam::where('deleteStatus',0)->where('user_id',$user->id)->get(['id', 'exam_name']);
+            if (isset($exam)) {
                 $output['status'] = true;
                 $output['response'] = $exam;
                 $output['message'] = 'Successfully Retrieved';
@@ -218,9 +219,9 @@ class ExamController extends Controller
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if (Exam::where('id', '=', $this->decrypt($input->editId))->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
+                if (Exam::where('id', '=', $input->editId)->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
                 {
-                    Exam::where('id',$this->decrypt($input->editId))->update(array('exam_name' => $input->examName));
+                    Exam::where('id',$input->editId)->update(array('exam_name' => $input->examName));
                     $output['status']=true;
                     $output['message']='Exam Successfully Updated';
                     $response['data']=$this->encryptData($output);
@@ -267,22 +268,17 @@ class ExamController extends Controller
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if (ExamRecord::where('exam_id', '=', $this->decrypt($input->examId))->where('subject_id','=',$this->decrypt($input->subjectId))->where('class_id','=',$this->decrypt($input->classId))->count() == 0)
+                if (ExamRecord::where('exam_id', '=', $input->examId)->where('subject_id','=',$input->subjectId)->where('class_id','=',$input->classId)->count() == 0)
                 {
                     $exam = new ExamRecord;
                     $exam->exam_id=$input->examId;
                     $exam->class_id=$input->classId;
                     $exam->subject_id=$input->subjectId;
                     $exam->date=date('Y-m-d',strtotime($input->date));
-                    $exam->class_id_encrypt=$this->encrypt($input->classId);
-                    $exam->subject_id_encrypt=$this->encrypt($input->subjectId);
-                    $exam->exam_id_encrypt=$this->encrypt($input->examId);
                     $exam->user_id=$user->id;
+                    $exam->admin_id=$user->admin_id;
                     if($exam->save())
                     {
-                       $examId=$this->encryptData($exam->id);
-                       ExamRecord::where('id',$exam->id)->update(array('encrypt_id' => $examId));
-
                         $output['status']=true;
                         $output['message']='Exam Record Successfully Added';
                         $response['data']=$this->encryptData($output);
@@ -325,7 +321,7 @@ class ExamController extends Controller
 
     public function deleteExamRecord($examId)
     {
-        $examId=$this->decrypt($examId);
+
         $user=Auth::User();
         if($user->hasPermissionTo('deleteExams'))
         {
@@ -357,12 +353,12 @@ class ExamController extends Controller
 
     public function getExamRecord($examId)
     {
-        $examId=$this->decrypt($examId);
+
         $user=Auth::User();
         if($user->hasPermissionTo('editExams'))
         {
-            $exam = ExamRecord::with(['subject','class_','exam'])->where('id','=',$exam_id)->where('user_id','=',$user->id)->get();
-            if (isset($exam->exam_id)) {
+            $exam = ExamRecord::with(['subject','class_','exam'])->where('id','=',$examId)->where('user_id','=',$user->id)->where('deleteStatus',0)->where('admin_id',$user->admin_id)->get();
+            if (isset($exam)) {
                 $output['status'] = true;
                 $output['response'] = $exam;
                 $output['message'] = 'Successfully Retrieved';
@@ -392,8 +388,8 @@ class ExamController extends Controller
         if($user->hasPermissionTo('viewExams'))
         {
            // $section = Section::all(['encrypt_id AS section_id', 'section_name']);
-            $exam = ExamRecord::where('deleteStatus',0)->where('user_id',$user->id)->paginate(10);
-            if (isset($exam->exam_id)) {
+            $exam = ExamRecord::where('deleteStatus',0)->where('user_id',$user->id)->where('admin_id',$user->admin_id)->paginate(10);
+            if (isset($exam)) {
 
                 $output['status'] = true;
                 $output['response'] = $exam;
@@ -424,7 +420,7 @@ class ExamController extends Controller
         if($user->hasPermissionTo('listExams'))
         {
             $exam = ExamRecord::where('deleteStatus',0)->where('user_id',$user->id)->get();
-            if (isset($exam->exam_id)) {
+            if (isset($exam)) {
                 $output['status'] = true;
                 $output['response'] = $exam;
                 $output['message'] = 'Successfully Retrieved';
@@ -450,7 +446,7 @@ class ExamController extends Controller
 
         return response($response, $code);
     }
-    public function updateSection(Request $request)
+    public function updateExamRecord(Request $request)
     {
 
         $user=Auth::User();
@@ -467,9 +463,10 @@ class ExamController extends Controller
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if (ExamRecord::where('id', '=', $this->decrypt($input->editId))->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
+
+                if (ExamRecord::where('id', '=', $input->editId)->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
                 {
-                    ExamRecord::where('id',$this->decrypt($input->editId))->update(array('exam_id' => $this->decrypt($input->examId),'class_id' =>  $this->decrypt($input->classId),'subject_id' =>  $this->decrypt($input->subjectId),'date' => date('Y-m-d',strtotime($input->date)),'exam_id_encrypt' => $input->examId,'class_id_encrypt' => $input->classId,'subject_id_encrypt' => $input->subjectId));
+                    ExamRecord::where('id',$input->editId)->update(array('exam_id' => $input->examId,'class_id' =>  $input->classId,'subject_id' =>  $input->subjectId,'date' => date('Y-m-d',strtotime($input->date))));
                     $output['status']=true;
                     $output['message']='Exam Record Successfully Updated';
                     $response['data']=$this->encryptData($output);

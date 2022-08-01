@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use Auth;
 use Hash;
@@ -10,20 +9,24 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\user;
 use App\Models\standard;
+use App\Models\classes;
+use App\Models\section;
+use App\Models\student;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Http\Traits\StudentTrait;
 class ClassController extends Controller
 {
+    use StudentTrait;
     public function listAllStandards()
     {
         $user=Auth::User();
         if($user->hasPermissionTo('listStandards'))
         {
-            $standard = Standard::all(['encrypt_id AS standard_id', 'standard_name']);
-            if ($section) {
+            $standard = Standard::all(['id', 'standard_name']);
+            if ($standard) {
                 $output['status'] = true;
-                $output['standards'] = $standard;
+                $output['response'] = $standard;
                 $output['message'] = 'Successfully Retrieved';
                 $response['data']=$this->encryptData($output);
                 $code=200;
@@ -58,26 +61,22 @@ class ClassController extends Controller
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if (Classes::where('section_id', '=', $this->decrypt($input->sectionId))->where('standard_id', '=', $this->decrypt($input->standardId))->where('user_id','=',$user->id)->count() == 0)
+                if (Classes::where('section_id', '=', $input->sectionId)->where('standard_id', '=', $input->standardId)->where('user_id','=',$user->id)->count() == 0)
                 {
-                    $section_name = Classes::with(['section'])->where('section_id','=',$this->decrypt($input->sectionId))->get(['section_name'])[0]['section_name'];
-                    $standard_name = Classes::with(['standard'])->where('standard_id','=',$this->decrypt($input->standardId))->get(['standard_name'])[0]['standard_name'];
+                    $section = Section::where('deleteStatus',0)->where('id',$input->sectionId)->get(['section_name']);
+                    $standard = Standard::where('id',$input->standardId)->get(['standard_name']);
+                    $section_name=$section[0]['section_name'];
+                    $standard_name=$standard[0]['standard_name'];
                     $classes = new Classes;
-                    $classes->section_id=$this->decrypt($input->sectionId);
-                    $classes->encrypt_section_id=$input->sectionId;
-                    $classes->standard_id=$this->decrypt($input->standardId);
-                    $classes->encrypt_standard_id=$input->standardId;
+                    $classes->section_id=$input->sectionId;
+                    $classes->standard_id=$input->standardId;
                     $classes->class_name=$standard_name.'-'.$section_name;
-                    $classes->standard_name=$standard_name;
-                    $classes->section_name=$section_name;
                     $classes->user_id=$user->id;
                     if($classes->save())
                     {
-                        $classes_id=$this->encryptData($classes->id);
-                        Classes::where('id',$classes->id)->update(array('encrypt_id' => $classes_id));
+
                         $output['status']=true;
-                        $output['message']='Section Successfully Added';
-                        $output['userData']=$section;
+                        $output['message']='Class Successfully Added';;
                         $response['data']=$this->encryptData($output);
                         $code = 200;
                     }
@@ -107,8 +106,12 @@ class ClassController extends Controller
         }
         else
         {
-
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
         }
+        return response($response, $code);
     }
     public function updateClasses(Request $request)
     {
@@ -119,22 +122,36 @@ class ClassController extends Controller
             $rules = [
                 'sectionId' => 'required',
                 'standardId' => 'required',
-                'ClassId' => 'required',
+                'classId' => 'required',
             ];
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
 
-                if (Classes::where('id', '=', $this->decrypt($input->ClassId))->count() == 1)
+                if (Classes::where('id', '=', $input->classId)->count() == 1)
                 {
-                    $section_name = Classes::with(['section'])->where('section_id','=',$this->decrypt($input->sectionId))->get(['section_name'])[0]['section_name'];
-                    $standard_name = Classes::with(['standard'])->where('standard_id','=',$this->decrypt($input->standardId))->get(['standard_name'])[0]['standard_name'];
-                    Classes::where('id',$this->decrypt($input->ClassId))->update(array('section_id' => $this->decrypt($input->sectionId),'standard_id' => $this->decrypt($input->standardId),'encrypt_section_id' => $input->sectionId,'encrypt_standard_id' => $input->standardId,'section_name' => $section_name,'standard_name' => $standard_name));
-                    $output['status']=true;
-                    $output['message']='Section Successfully Updated';
-                    $response['data']=$this->encryptData($output);
-                    $code = 200;
+                    if(Student::where('class_id', '=', $input->classId)->count() == 0)
+                    {
+                        $section = Section::where('deleteStatus',0)->where('user_id',$user->id)->where('id',$input->sectionId)->get(['section_name']);
+                        $standard = Standard::where('id',$input->standardId)->get(['standard_name']);
+
+                        $section_name=$section[0]['section_name'];
+                        $standard_name=$standard[0]['standard_name'];
+                        Classes::where('id',$input->classId)->update(array('section_id' => $input->sectionId,'standard_id' => $input->standardId,'class_name' => $standard_name.'-'.$section_name));
+                        $output['status']=true;
+                        $output['message']='Class Successfully Updated';
+                        $response['data']=$this->encryptData($output);
+                        $code = 200;
+                    }
+                    else
+                    {
+                        $output['status']=true;
+                        $output['message']='Not Allowed to edit';
+                        $response['data']=$this->encryptData($output);
+                        $code = 400;
+                    }
+
                 }
                 else
                 {
@@ -164,17 +181,27 @@ class ClassController extends Controller
     }
     public function deleteClasses($ClassesId)
     {
-        $ClassesId=$this->decrypt($ClassesId);
         $user=Auth::User();
         if($user->hasPermissionTo('deleteClasses'))
         {
             if (Classes::where('id', '=', $ClassesId)->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
             {
-                Classes::where('id',$ClassesId)->update(array('deleteStatus' => 1));
-                $output['status'] = true;
-                $output['message'] = 'Successfully Deleted';
-                $response['data']=$this->encryptData($output);
-                $code=200;
+                if(Student::where('class_id', '=', $ClassesId)->count() == 0)
+                {
+                    Classes::where('id',$ClassesId)->update(array('deleteStatus' => 1));
+                    $output['status'] = true;
+                    $output['message'] = 'Successfully Deleted';
+                    $response['data']=$this->encryptData($output);
+                    $code=200;
+                }
+                else
+                {
+                    $output['status'] = false;
+                    $output['message'] = 'Not Allowed to Delete';
+                    $response['data']=$this->encryptData($output);
+                    $code=400;
+                }
+
             }
             else
             {
@@ -191,17 +218,16 @@ class ClassController extends Controller
             $response['data']=$this->encryptData($output);
             $code=400;
         }
+        return response($response, $code);
     }
 
     public function getClassesRecord($ClassesId)
     {
-        $ClassesId=$this->decrypt($ClassesId);
         $user=Auth::User();
         if($user->hasPermissionTo('editClasses'))
         {
-            $classes = Classes::with(['section','standard'])->where('id','=',$ClassesId)->get();
-
-            if ($classes) {
+            $classes = Classes::with(['section','standard'])->where('id','=',$ClassesId)->where('deleteStatus',0)->where('user_id',$user->id)->get();
+            if (isset($classes)) {
                 $output['status'] = true;
                 $output['classes'] = $classes;
                 $output['message'] = 'Successfully Retrieved';
@@ -230,7 +256,7 @@ class ClassController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('viewClasses'))
         {
-            $classes =Classes::with(['section','standard'])->paginate(10);
+            $classes =Classes::with(['section','standard'])->where('deleteStatus',0)->where('user_id',$user->id)->paginate(10);
             if ($classes) {
                 $output['status'] = true;
                 $output['classes'] = $classes;
@@ -260,8 +286,8 @@ class ClassController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('listClasses'))
         {
-            $classes = Classes::with(['section','standard'])->get();
-            if ($classes) {
+            $classes = Classes::with(['section','standard'])->where('deleteStatus',0)->where('user_id',$user->id)->get();
+            if (isset($classes)) {
                 $output['status'] = true;
                 $output['classes'] = $classes;
                 $output['message'] = 'Successfully Retrieved';

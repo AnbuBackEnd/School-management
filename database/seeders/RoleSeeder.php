@@ -4,7 +4,6 @@ namespace Database\Seeders;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Seeder;
-
 class RoleSeeder extends Seeder
 {
     /**
@@ -38,10 +37,6 @@ class RoleSeeder extends Seeder
         $deleteStaffs = Permission::create(['name' => 'deleteStaffs']);
         $viewStaffs = Permission::create(['name' => 'viewStaffs']);
         $listStaffs = Permission::create(['name' => 'listStaffs']);
-        $addSections = Permission::create(['name' => 'addSections']);
-        $editSections = Permission::create(['name' => 'editSections']);
-        $deleteSections = Permission::create(['name' => 'deleteSections']);
-        $viewSections = Permission::create(['name' => 'viewSections']);
         $listSections = Permission::create(['name' => 'listSections']);
         $addSubjects = Permission::create(['name' => 'addSubjects']);
         $editSubjects = Permission::create(['name' => 'editSubjects']);
@@ -64,20 +59,23 @@ class RoleSeeder extends Seeder
         $editExams = Permission::create(['name' => 'editExams']);
         $viewExams = Permission::create(['name' => 'viewExams']);
         $listExams = Permission::create(['name' => 'listExams']);
-        $addFeesStructureCatagory = Permission::create(['name' => 'addFeesStructureCatagory']);
-        $deleteFeesStrutureCatagory = Permission::create(['name' => 'deleteFeesStrutureCatagory']);
-        $editFeesStructureCatagory = Permission::create(['name' => 'editFeesStructureCatagory']);
-        $viewFeesStructureCatagory = Permission::create(['name' => 'viewFeesStructureCatagory']);
-        $listFeesStrutureCatagory = Permission::create(['name' => 'listFeesStrutureCatagory']);
         $addFees = Permission::create(['name' => 'addFees']);
         $deleteFees = Permission::create(['name' => 'deleteFees']);
-        $editFees = Permission::create(['name' => 'editFees']);
-        $viewFees = Permission::create(['name' => 'viewFees']);
+        $addPayFees = Permission::create(['name' => 'addPayFees']);
+        $deletePayFees = Permission::create(['name' => 'deletePayFees']);
         $addResults = Permission::create(['name' => 'addResults']);
         $deleteResults = Permission::create(['name' => 'deleteResults']);
         $editResults = Permission::create(['name' => 'editResults']);
         $viewResults = Permission::create(['name' => 'viewResults']);
         $putAttendance = Permission::create(['name' => 'putAttendance']);
+        $studentAttendanceReport = Permission::create(['name' => 'studentAttendanceReport']);
+        $feesNotPaidStudentsAdmin = Permission::create(['name' => 'feesNotPaidStudentsAdmin']);
+        $feesNotPaidStudentsTeacher = Permission::create(['name' => 'feesNotPaidStudentsTeacher']);
+        $gradeCalculationReportAdmin = Permission::create(['name' => 'gradeCalculationReportAdmin']);
+        $gradeCalculationReportTeacher = Permission::create(['name' => 'gradeCalculationReportTeacher']);
+        $studentAttendanceReportAdmin = Permission::create(['name' => 'studentAttendanceReportAdmin']);
+        $studentAttendanceReportTeacher = Permission::create(['name' => 'studentAttendanceReportTeacher']);
+
 
 
       // Role::create(['name' => 'SuperAdmin']);
@@ -88,11 +86,7 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo($deleteStaffs);
         $role->givePermissionTo($listStaffs);
         $role->givePermissionTo($viewStaffs);
-        $role->givePermissionTo($addSections);
-        $role->givePermissionTo($editSections);
-        $role->givePermissionTo($viewSections);
         $role->givePermissionTo($listSections);
-        $role->givePermissionTo($deleteSections);
         $role->givePermissionTo($addClasses);
         $role->givePermissionTo($editClasses);
         $role->givePermissionTo($viewClasses);
@@ -104,6 +98,9 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo($listSubjects);
         $role->givePermissionTo($deleteSubjects);
         $role->givePermissionTo($listStandards);
+        $role->givePermissionTo($feesNotPaidStudentsAdmin);
+        $role->givePermissionTo($gradeCalculationReportAdmin);
+        $role->givePermissionTo($studentAttendanceReportAdmin);
         //Teaching Staff Give Permissions
         $role=Role::create(['name' => 'TeachingStaff']);
         $role->givePermissionTo($addStudents);
@@ -112,29 +109,28 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo($listStudents);
         $role->givePermissionTo($deleteStudents);
         $role->givePermissionTo($putAttendance);
+        $role->givePermissionTo($addResults);
+        $role->givePermissionTo($deleteResults);
+        $role->givePermissionTo($editResults);
+        $role->givePermissionTo($viewResults);
+        $role->givePermissionTo($studentAttendanceReportTeacher);
+        $role->givePermissionTo($gradeCalculationReportTeacher);
+        $role->givePermissionTo($feesNotPaidStudentsTeacher);
           //Administration Staff Give Permissions
-        Role::create(['name' => 'AdministrationStaff']);
+        $role=Role::create(['name' => 'NonTeachingStaff']);
         $role->givePermissionTo($addExams);
         $role->givePermissionTo($deleteExams);
         $role->givePermissionTo($editExams);
         $role->givePermissionTo($viewExams);
         $role->givePermissionTo($listExams);
-        $role->givePermissionTo($addFeesStructureCatagory);
-        $role->givePermissionTo($deleteFeesStrutureCatagory);
-        $role->givePermissionTo($editFeesStructureCatagory);
-        $role->givePermissionTo($viewFeesStructureCatagory);
-        $role->givePermissionTo($listFeesStrutureCatagory);
         $role->givePermissionTo($addFees);
         $role->givePermissionTo($deleteFees);
-        $role->givePermissionTo($editFees);
-        $role->givePermissionTo($viewFees);
-        $role->givePermissionTo($addResults);
-        $role->givePermissionTo($deleteResults);
-        $role->givePermissionTo($editResults);
-        $role->givePermissionTo($viewResults);
-
+        $role->givePermissionTo($deletePayFees);
+        $role->givePermissionTo($addPayFees);
+        // $role->givePermissionTo($editFees);
+        // $role->givePermissionTo($viewFees);
         //librarian Give Permissions
-        Role::create(['name' => 'librarian']);
+        $role=Role::create(['name' => 'librarian']);
         $role->givePermissionTo($addBookCatagory);
         $role->givePermissionTo($deleteBookCatagory);
         $role->givePermissionTo($editBookCatagory);
@@ -146,10 +142,10 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo($listBookSubCatagory);
         $role->givePermissionTo($addBooks);
         $role->givePermissionTo($editBooks);
+        $role->givePermissionTo($deleteBooks);
         $role->givePermissionTo($getBooks);
         $role->givePermissionTo($listBooks);
         $role->givePermissionTo($getAllorders);
-        $role->givePermissionTo($searchOrders);
         $role->givePermissionTo($searchOrders);
         $role->givePermissionTo($ReturnPermission);
         $role->givePermissionTo($deleteBooksRecords);

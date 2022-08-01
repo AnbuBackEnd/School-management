@@ -21,6 +21,7 @@ use App\Http\Traits\StudentTrait;
 
 class BookController extends Controller
 {
+    use StudentTrait;
     public function addBookCatagory(Request $request)
     {
         $user=Auth::User();
@@ -41,12 +42,8 @@ class BookController extends Controller
                     $bookcata->admin_id=$user->admin_id;
                     if($bookcata->save())
                     {
-                       $secId=$this->encryptData($section->id);
-                       Section::where('id',$section->id)->update(array('encrypt_id' => $secId));
-                       $sectionObject = Section::where('id',$section->id)->first(['encrypt_id AS section_id', 'section_name']);
                         $output['status']=true;
-                        $output['message']='Section Successfully Added';
-                        $output['response']=$sectionObject;
+                        $output['message']='Catagory Successfully Added';
                         $response['data']=$this->encryptData($output);
                         $code = 200;
                     }
@@ -86,7 +83,7 @@ class BookController extends Controller
     }
     public function deleteCatagory($bookId)
     {
-        $bookId=$this->decrypt($bookId);
+        // $bookId=$this->decrpt($bookId);
         $user=Auth::User();
         if($user->hasPermissionTo('deleteBookCatagory'))
         {
@@ -117,12 +114,13 @@ class BookController extends Controller
     }
     public function getCatagory($bookId)
     {
-        $bookId=$this->decrypt($bookId);
+        // $bookId=$this->decrypt($bookId);
         $user=Auth::User();
         if($user->hasPermissionTo('editBookCatagory'))
         {
-            $book = Bookcatagory::where('id',$bookId)->where('deleteStatus',0)->first(['encrypt_id AS catagory_id', 'catagory_name']);
-            if (isset($book->book_id)) {
+            $book = Bookcatagory::where('id',$bookId)->where('deleteStatus',0)->first(['id', 'catagory_name']);
+
+            if (isset($book)) {
                 $output['status'] = true;
                 $output['response'] = $book;
                 $output['message'] = 'Successfully Retrieved';
@@ -149,11 +147,11 @@ class BookController extends Controller
     public function getAllCatagory()
     {
         $user=Auth::User();
+
         if($user->hasPermissionTo('viewBookCatagory'))
         {
-           // $section = Section::all(['encrypt_id AS section_id', 'section_name']);
-            $book = Bookcatagory::where('deleteStatus',0)->where('admin_id',$user->admin_id)->paginate(10,['encrypt_id AS catagory_id', 'catagory_name']);
-            if (isset($book->book_id)) {
+            $book = Bookcatagory::where('deleteStatus',0)->where('admin_id',$user->admin_id)->paginate(10,['id', 'catagory_name']);
+            if (isset($book)) {
 
                 $output['status'] = true;
                 $output['response'] = $book;
@@ -183,8 +181,8 @@ class BookController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('listBookCatagory'))
         {
-            $book = Bookcatagory::where('deleteStatus',0)->where('admin_id',$user->admin_id)->get(['encrypt_id AS catagory_id', 'catagory_name']);
-            if (isset($book->catagory_id)) {
+            $book = Bookcatagory::where('deleteStatus',0)->where('admin_id',$user->admin_id)->get(['id', 'catagory_name']);
+            if (isset($book)) {
                 $output['status'] = true;
                 $output['response'] = $book;
                 $output['message'] = 'Successfully Retrieved';
@@ -217,19 +215,18 @@ class BookController extends Controller
         if($user->hasPermissionTo('editBookCatagory'))
         {
             $rules = [
-                'sectionName' => 'required',
-                'active' => 'required',
-                'sectionId' => 'required',
+                'catagoryName' => 'required',
+                'editId' => 'required',
             ];
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if (Section::where('id', '=', $this->decrypt($input->sectionId))->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
+                if (Bookcatagory::where('id', '=',$input->editId)->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
                 {
-                    Section::where('id',$this->decrypt($input->sectionId))->update(array('section_name' => $input->sectionName,'active' => $input->active));
+                    Bookcatagory::where('id',$input->editId)->update(array('catagory_name' => $input->catagoryName));
                     $output['status']=true;
-                    $output['message']='Section Successfully Updated';
+                    $output['message']='Book Catagory Successfully Updated';
                     $response['data']=$this->encryptData($output);
                     $code = 200;
                 }
@@ -279,14 +276,11 @@ class BookController extends Controller
                 {
                     $bookcata = new BookSubCatagory;
                     $bookcata->subcatagory_name=$input->subCatagoryName;
-                    $bookcata->catagory_id=$this->decrypt($input->catagoryId);
-                    $bookcata->encrypt_catagory_id=$input->catagoryId;
+                    $bookcata->catagory_id=$input->catagoryId;
                     $bookcata->user_id=$user->id;
                     $bookcata->admin_id=$user->admin_id;
                     if($bookcata->save())
                     {
-                       $book_id=$this->encryptData($bookcata->id);
-                       BookSubCatagory::where('id',$bookcata->id)->update(array('encrypt_id' => $book_id));
                         $output['status']=true;
                         $output['message']='Sub Catagory Successfully Added';
 
@@ -329,7 +323,7 @@ class BookController extends Controller
     }
     public function deleteBookSubCatagory($subCatagoryId)
     {
-        $subCatagoryId=$this->decrypt($subCatagoryId);
+
         $user=Auth::User();
         if($user->hasPermissionTo('deleteBookSubCatagory'))
         {
@@ -360,12 +354,12 @@ class BookController extends Controller
     }
     public function getBookSubCatagory($subCatagoryId)
     {
-        $subCatagoryId=$this->decrypt($subCatagoryId);
+
         $user=Auth::User();
         if($user->hasPermissionTo('editBookSubCatagory'))
         {
             $booksubcatagory = BookSubCatagory::where('id',$subCatagoryId)->where('deleteStatus',0)->first(['encrypt_id AS subcatagory_id', 'subcatagory_name']);
-            if (isset($booksubcatagory->subcatagory_id)) {
+            if (isset($booksubcatagory)) {
                 $output['status'] = true;
                 $output['response'] = $booksubcatagory;
                 $output['message'] = 'Successfully Retrieved';
@@ -394,8 +388,8 @@ class BookController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('listBookSubCatagory'))
         {
-            $BookSubCatagory = BookSubCatagory::where('deleteStatus',0)->where('user_id',$user->id)->get(['encrypt_id AS subcatagory_id', 'subcatagory_name']);
-            if (isset($BookSubCatagory->subcatagory_id)) {
+            $BookSubCatagory = BookSubCatagory::where('deleteStatus',0)->where('user_id',$user->id)->get(['id', 'subcatagory_name']);
+            if (isset($BookSubCatagory)) {
                 $output['status'] = true;
                 $output['response'] = $BookSubCatagory;
                 $output['message'] = 'Successfully Retrieved';
@@ -440,18 +434,17 @@ class BookController extends Controller
                 if (Book::where('book_name', '=', $input->bookName)->where('catagory_id',$input->catagoryId)->where('subcatagory_id',$input->subCatagoryId)->where('admin_id',$user->admin_id)->count() == 0)
                 {
                     $bookcata = new Book;
-                    $bookcata->encrypt_subcatagory_id=$input->subCatagoryId;
-                    $bookcata->subcatagory_id=$this->decrypt($input->subCatagoryId);
-                    $bookcata->encrypt_catagory_id=$input->catagoryId;
+
+                    $bookcata->subcatagory_id=$input->subCatagoryId;
+
                     $bookcata->isbn_no=$input->isbnNO;
+                    $bookcata->book_name=$input->bookName;
                     $bookcata->author_name=$input->authorName;
-                    $bookcata->catagory_id=$this->decrypt($input->catagory_id);
+                    $bookcata->catagory_id=$input->catagoryId;
                     $bookcata->user_id=$user->id;
                     $bookcata->admin_id=$user->admin_id;
                     if($bookcata->save())
                     {
-                       $book_id=$this->encryptData($bookcata->id);
-                       Book::where('id',$bookcata->id)->update(array('encrypt_id' => $book_id));
                         $output['status']=true;
                         $output['message']='Book Successfully Added';
 
@@ -494,7 +487,7 @@ class BookController extends Controller
     }
     public function deleteBook($bookId)
     {
-        $bookId=$this->decrypt($bookId);
+
         $user=Auth::User();
         if($user->hasPermissionTo('deleteBooks'))
         {
@@ -525,13 +518,13 @@ class BookController extends Controller
     }
     public function getBook($bookId)
     {
-        $bookId=$this->decrypt($bookId);
+
         $user=Auth::User();
         if($user->hasPermissionTo('editBooks'))
         {
             $book = Book::with(['catagory','subcatagory'])->where('deleteStatus','=',0)->where('id',$bookId)->get();
 
-            if (isset($book->id)) {
+            if (isset($book)) {
                 $output['status'] = true;
                 $output['response'] = $book;
                 $output['message'] = 'Successfully Retrieved';
@@ -561,7 +554,7 @@ class BookController extends Controller
         if($user->hasPermissionTo('getBooks'))
         {
             $book = Book::with(['catagory','subcatagory'])->where('deleteStatus','=',0)->where('admin_id',$user->admin_id)->paginate(10);
-            if (isset($book->id)) {
+            if (isset($book)) {
                 $output['status'] = true;
                 $output['response'] = $book;
                 $output['message'] = 'Successfully Retrieved';
@@ -590,8 +583,8 @@ class BookController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('listBooks'))
         {
-            $book = Book::where('deleteStatus',0)->where('admin_id',$user->admin_id)->get(['encrypt_id AS book_id', 'book_name']);
-            if (isset($book->book_id)) {
+            $book = Book::where('deleteStatus',0)->where('admin_id',$user->admin_id)->get(['id', 'book_name']);
+            if (isset($book)) {
                 $output['status'] = true;
                 $output['response'] = $book;
                 $output['message'] = 'Successfully Retrieved';
@@ -624,7 +617,7 @@ class BookController extends Controller
         {
             $book = RequestBook::with(['classes','student','book','catagory','subcatagory','staff'])->where('deleteStatus','=',0)->where('admin_id','=',$user->admin_id)->get();
 
-            if (isset($book->id)) {
+            if (isset($book)) {
 
                 $output['status'] = true;
                 $output['response'] = $book;
@@ -651,13 +644,13 @@ class BookController extends Controller
     }
     public function searchStaff($staffId)
     {
-        $staffId=$this->decrypt($staffId);
+
         $user=Auth::User();
         if($user->hasPermissionTo('searchOrders'))
         {
             $book = RequestBook::with(['classes','student','book','catagory','subcatagory','staff'])->where('deleteStatus','=',0)->where('staff_id','=',$staffId)->where('admin_id','=',$user->admin_id)->get();
 
-            if (isset($book->id)) {
+            if (isset($book)) {
 
                 $output['status'] = true;
                 $output['response'] = $book;
@@ -682,7 +675,7 @@ class BookController extends Controller
         }
         return response($response, $code);
     }
-    public function toReturn($bookId)
+    public function toReturn(Request $request)
     {
         $user=Auth::User();
         if($user->hasPermissionTo('ReturnPermission'))
@@ -697,11 +690,9 @@ class BookController extends Controller
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if (RequestBook::where('id', '=', $this->decrypt($input->bookId))->where('deleteStatus','=',0)->count() == 1)
+                if (RequestBook::where('id', '=', $input->bookId)->where('deleteStatus','=',0)->count() == 1)
                 {
-
-
-                     RequestBook::where('id',$this->decrypt($input->bookId))->update(array('returned_date' => date('Y-m-d'),'returned_status' => $input->returned_status,'fine_amount' => $input->fine_amount,'fine_status' => $input->fine_status));
+                     RequestBook::where('id',$input->bookId)->update(array('returned_date' => date('Y-m-d'),'returned_status' => $input->returned_status,'fine_amount' => $input->fine_amount,'fine_status' => $input->fine_status));
                         $output['status']=true;
                         $output['message']='Returned Successfully';
                         $response['data']=$this->encryptData($output);
@@ -711,7 +702,7 @@ class BookController extends Controller
                 else
                 {
                     $output['status']=false;
-                    $output['message']='Already Exists';
+                    $output['message']='Request Book Not Occured';
                     $response['data']=$this->encryptData($output);
                     $code = 409;
                 }
@@ -740,7 +731,7 @@ class BookController extends Controller
         {
             $book = RequestBook::with(['classes','student','book','catagory','subcatagory','staff'])->where('deleteStatus','=',0)->where('return_date','=',date('Y-m-d'))->where('admin_id','=',$user->admin_id)->get();
 
-            if (isset($book->id)) {
+            if (isset($book)) {
 
                 $output['status'] = true;
                 $output['response'] = $book;
@@ -767,13 +758,12 @@ class BookController extends Controller
     }
     public function searchStudent($studentId)
     {
-        $studentId=$this->decrypt($studentId);
         $user=Auth::User();
         if($user->hasPermissionTo('searchOrders'))
         {
             $book = RequestBook::with(['classes','student','book','catagory','subcatagory','staff'])->where('deleteStatus','=',0)->where('student_id','=',$studentId)->where('admin_id','=',$user->admin_id)->get();
 
-            if (isset($book->id)) {
+            if (isset($book)) {
 
                 $output['status'] = true;
                 $output['response'] = $book;
@@ -800,7 +790,6 @@ class BookController extends Controller
     }
     public function deleteBookRecords($bookId)
     {
-        $bookId=$this->decrypt($bookId);
         $user=Auth::User();
         if($user->hasPermissionTo('deleteBooksRecords'))
         {
@@ -851,38 +840,29 @@ class BookController extends Controller
             {
                 if($input->student == true)
                 {
-                    $counting=RequestBook::where('student_id', '=', $this->decrypt($input->studentId))->where('returned_status',0)->where('admin_id',$user->admin_id)->count();
+                    $counting=RequestBook::where('student_id', '=', $input->studentId)->where('returned_status',0)->where('admin_id',$user->admin_id)->count();
                 }
                 else
                 {
-                    $counting=RequestBook::where('staff_id', '=', $this->decrypt($input->staffId))->where('returned_status',0)->where('admin_id',$user->admin_id)->count();
+                    $counting=RequestBook::where('staff_id', '=', $input->staffId)->where('returned_status',0)->where('admin_id',$user->admin_id)->count();
                 }
                 if ($counting == 0)
                 {
                     $bookcata = new RequestBook;
-                    $bookcata->student_id=$this->decrypt($input->studentId);
-                    $bookcata->encrypt_student_id=$input->studentId;
-                    $bookcata->class_id=$this->decrypt($input->classId);
-                    $bookcata->encrypt_class_id=$input->classId;
-                    $bookcata->staff_id=$this->decrypt($input->staffId);
-                    $bookcata->encrypt_staff_id=$input->staffId;
-                    $bookcata->catagory_id=$this->decrypt($input->catagoryId);
-                    $bookcata->encrypt_catagory_id=$input->catagoryId;
-                    $bookcata->book_id=$this->decrypt($input->bookId);
-                    $bookcata->encrypt_book_id=$input->bookId;
-                    $bookcata->subcatagory_id=$this->decrypt($input->subCatagoryId);
-                    $bookcata->encrypt_subcatagory_id=$input->subCatagoryId;
+                    $bookcata->student_id=$input->studentId;
+                    $bookcata->class_id=$input->classId;
+                    $bookcata->staff_id=$input->staffId;
+                    $bookcata->catagory_id=$input->catagoryId;
+                    $bookcata->book_id=$input->bookId;
+                    $bookcata->subcatagory_id=$input->subCatagoryId;
                     $bookcata->get_date=date('Y-m-d',strtotime($input->getDate));
                     $bookcata->return_date=date('Y-m-d',strtotime($input->returnDate));
                     $bookcata->user_id=$user->id;
                     $bookcata->admin_id=$user->admin_id;
                     if($bookcata->save())
                     {
-                       $book_id=$this->encryptData($bookcata->id);
-                       RequestBook::where('id',$bookcata->id)->update(array('encrypt_id' => $book_id));
                         $output['status']=true;
-                        $output['message']='Sub Catagory Successfully Added';
-
+                        $output['message']='Requested Books Added';
                         $response['data']=$this->encryptData($output);
                         $code = 200;
                     }

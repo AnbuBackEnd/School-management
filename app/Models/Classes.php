@@ -10,10 +10,10 @@ class Classes extends Model
     use HasFactory;
     public function section()
     {
-        return $this->hasOne(section::class,'section_id');
+        return $this->belongsTo(section::class,'section_id');
     }
     public function standard()
     {
-        return $this->hasOne(standard::class,'standard_id');
+        return $this->belongsTo(standard::class,'standard_id');
     }
 }

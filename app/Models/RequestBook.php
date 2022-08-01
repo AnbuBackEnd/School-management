@@ -10,26 +10,26 @@ class RequestBook extends Model
     use HasFactory;
     public function catagory()
     {
-        return $this->hasOne(bookCatagory::class,'catagory_id');
+        return $this->belongsTo(bookCatagory::class,'catagory_id');
     }
     public function subcatagory()
     {
-        return $this->hasOne(bookSubCatagory::class,'subcatagory_id');
+        return $this->belongsTo(bookSubCatagory::class,'subcatagory_id');
     }
     public function book()
     {
-        return $this->hasOne(book::class,'book_id');
+        return $this->belongsTo(book::class,'book_id');
     }
     public function student()
     {
-        return $this->hasOne(student::class,'student_id');
+        return $this->belongsTo(student::class,'student_id');
     }
     public function classes()
     {
-        return $this->hasOne(classes::class,'class_id');
+        return $this->belongsTo(classes::class,'class_id');
     }
     public function staff()
     {
-        return $this->hasOne(staff::class,'staff_id');
+        return $this->belongsTo(user::class,'staff_id');
     }
 }

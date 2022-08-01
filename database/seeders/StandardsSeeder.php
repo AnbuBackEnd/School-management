@@ -91,5 +91,110 @@ class StandardsSeeder extends Seeder
             'encrypt_id' => $this->encryptData(15),
         ]
         ]);
+        DB::table('sections')->insert([[
+            'id' => 1,
+            'section_name' => 'A',
+        ],
+        [
+            'id' => 2,
+            'section_name' => 'B',
+        ],
+        [
+            'id' => 3,
+            'section_name' => 'C',
+        ],
+        [
+            'id' => 4,
+            'section_name' => 'D',
+        ],
+        [
+            'id' => 5,
+            'section_name' => 'E',
+        ],
+        [
+            'id' => 6,
+            'section_name' => 'F',
+        ],
+        [
+            'id' => 7,
+            'section_name' => 'G',
+        ],
+        [
+            'id' => 8,
+            'section_name' => 'H',
+        ],
+        [
+            'id' => 9,
+            'section_name' => 'I',
+        ],
+        [
+            'id' => 10,
+            'section_name' => 'J',
+        ],
+        [
+            'id' => 11,
+            'section_name' => 'K',
+        ],
+        [
+            'id' => 12,
+            'section_name' => 'L',
+        ],
+        [
+            'id' => 13,
+            'section_name' => 'M',
+        ],
+        [
+            'id' => 14,
+            'section_name' => 'N',
+        ],
+        [
+            'id' => 15,
+            'section_name' => 'O',
+        ],
+        [
+            'id' => 16,
+            'section_name' => 'P',
+        ],
+        [
+            'id' => 17,
+            'section_name' => 'Q',
+        ],
+        [
+            'id' => 18,
+            'section_name' => 'R',
+        ],
+        [
+            'id' => 19,
+            'section_name' => 'S',
+        ],
+        [
+            'id' => 20,
+            'section_name' => 'T',
+        ],
+        [
+            'id' => 21,
+            'section_name' => 'U',
+        ],
+        [
+            'id' => 22,
+            'section_name' => 'V',
+        ],
+        [
+            'id' => 23,
+            'section_name' => 'W',
+        ],
+        [
+            'id' => 24,
+            'section_name' => 'X',
+        ],
+        [
+            'id' => 25,
+            'section_name' => 'Y',
+        ],
+        [
+            'id' => 26,
+            'section_name' => 'Z',
+        ]
+        ]);
     }
 }
