@@ -36,7 +36,7 @@ class ResultController extends Controller
 
             if(!$validator->fails())
             {
-                if (Result::where('id', '=', $input->studentId)->where('subject_id',$input->subjectId)->where('class_id','=',$user->class_id)->count() == 0)
+                if (Result::where('student_id', '=', $input->studentId)->where('subject_id',$input->subjectId)->where('class_id','=',$user->class_id)->where('exam_id',$input->examId)->count() == 0)
                 {
                     $result = new Result;
                     $result->student_id=$input->studentId;

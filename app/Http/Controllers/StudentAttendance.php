@@ -21,6 +21,7 @@ class StudentAttendance extends Controller
     public function putAttendance(Request $request)
     {
         $user=Auth::user();
+
         if($user->hasPermissionTo('putAttendance'))
         {
             $this->check_attendance($user->class_id);
@@ -33,8 +34,8 @@ class StudentAttendance extends Controller
                 for($i=0;$i<count($input);$i++)
                 {
                     $datafinal[$i]['date']=date('Y-m-d');
-                    $datafinal[$i]['student_id']=$input[$i]->student_id;
-                    $datafinal[$i]['class_id']=$input[$i]->class_id;
+                    $datafinal[$i]['student_id']=$input[$i]->studentId;
+                    $datafinal[$i]['class_id']=$input[$i]->classId;
                     $datafinal[$i]['present']=$input[$i]->present;
 
                 }

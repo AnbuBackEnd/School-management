@@ -8,6 +8,7 @@ use App\Models\user;
 use App\Models\section;
 use App\Models\Fee;
 use App\Models\Intiate_fee;
+use App\Models\pay_fee;
 use App\Models\FeesStructureCatagory;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -223,7 +224,7 @@ class FeesController extends Controller
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if (intiate_fee::where('id', '=', $input->feesId)->where('deleteStatus',0)->count() == 0)
+                if (intiate_fee::where('id', '=', $input->feesId)->where('deleteStatus',0)->where('class_id',$input->classId)->count() == 1)
                 {
 
                     $fees = new Pay_fee;

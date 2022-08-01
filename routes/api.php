@@ -124,4 +124,9 @@ Route::get('/listAllBooks', [BookController::class, 'listAllBooks'])->middleWare
 Route::get('/listAllStandards', [ClassController::class, 'listAllStandards'])->middleWare('auth:api');
 Route::post('/putAttendance', [StudentAttendance::class, 'putAttendance']);
 //reports
-Route::get('/studentAttendanceReport/{id}/{date}', [ReportController::class, 'studentAttendanceReport'])->middleWare('auth:api');
+Route::get('/feesNotPaidStudents_admin/{feedId}/{classId}', [ReportController::class, 'feesNotPaidStudents_admin'])->middleWare('auth:api');
+Route::get('/feesNotPaidStudents_teacher/{feesId}', [ReportController::class, 'feesNotPaidStudents_teacher'])->middleWare('auth:api');
+Route::get('/gradeCalculation_admin/{classId}/{examId}', [ReportController::class, 'gradeCalculation_admin'])->middleWare('auth:api');
+Route::get('/gradeCalculation_teacher/{examId}', [ReportController::class, 'gradeCalculation_teacher'])->middleWare('auth:api');
+Route::get('/studentAttendanceReport_admin/{classId}/{date}', [ReportController::class, 'studentAttendanceReport_admin'])->middleWare('auth:api');
+Route::get('/studentAttendanceReport_teacher/{classId}', [ReportController::class, 'studentAttendanceReport_teacher'])->middleWare('auth:api');
