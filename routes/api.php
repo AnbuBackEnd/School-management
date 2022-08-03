@@ -91,6 +91,8 @@ Route::post('/returnBook', [BookController::class, 'toReturn'])->middleWare('aut
 Route::post('/addBook', [BookController::class, 'addBook'])->middleWare('auth:api');
 Route::post('/addBookSubCatagory', [BookController::class, 'addBookSubCatagory'])->middleWare('auth:api');
 Route::post('/updateCatagory', [BookController::class, 'updateCatagory'])->middleWare('auth:api');
+Route::post('/updateSubCatagory', [BookController::class, 'updateSubCatagory'])->middleWare('auth:api');
+Route::post('/updateBook', [BookController::class, 'updateBook'])->middleWare('auth:api');
 Route::get('/deleteCatagory/{id}', [BookController::class, 'deleteCatagory'])->middleWare('auth:api');
 Route::get('/deleteBook/{id}', [BookController::class, 'deleteBook'])->middleWare('auth:api');
 Route::get('/deleteBookSubCatagory/{id}', [BookController::class, 'deleteBookSubCatagory'])->middleWare('auth:api');

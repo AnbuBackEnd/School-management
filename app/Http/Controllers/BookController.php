@@ -258,7 +258,55 @@ class BookController extends Controller
     }
 
 
+    public function updateSubCatagory(Request $request)
+    {
 
+        $user=Auth::User();
+        if($user->hasPermissionTo('editBookSubCatagory'))
+        {
+            $rules = [
+                'catagoryId' => 'required',
+                'subCatagoryName' => 'required',
+                'editId' => 'required',
+            ];
+            $input=$this->decrypt($request->input('input'));
+            $validator = Validator::make((array)$input, $rules);
+            if(!$validator->fails())
+            {
+                if (BookSubCatagory::where('id', '=',$input->editId)->where('user_id',$user->id)->where('admin_id',$user->admin_id)->where('deleteStatus',0)->count() == 1)
+                {
+                    BookSubCatagory::where('id',$input->editId)->update(array('catagory_id' => $input->catagoryId,'subcatagory_name' => $input->subCatagoryName));
+                    $output['status']=true;
+                    $output['message']='Book Sub Catagory Successfully Updated';
+                    $response['data']=$this->encryptData($output);
+                    $code = 200;
+                }
+                else
+                {
+                    $output['status']=true;
+                    $output['message']='Something went wrong. Please try again later.';
+                    $response['data']=$this->encryptData($output);
+                    $code = 400;
+                }
+            }
+            else
+            {
+                $output['status']=false;
+                $output['message']=[$validator->errors()->first()];
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+        return response($response, $code);
+
+    }
     public function addBookSubCatagory(Request $request)
     {
         $user=Auth::User();
@@ -413,6 +461,56 @@ class BookController extends Controller
         }
 
 
+        return response($response, $code);
+    }
+    public function updateBook(Request $request)
+    {
+        $user=Auth::User();
+        if($user->hasPermissionTo('editBooks'))
+        {
+            $rules = [
+                'subCatagoryId' => 'required',
+                'catagoryId' => 'required',
+                'bookName' => 'required',
+                'isbnNO' => 'required',
+                'authorName' => 'required',
+            ];
+            $input=$this->decrypt($request->input('input'));
+            $validator = Validator::make((array)$input, $rules);
+            if(!$validator->fails())
+            {
+                if (Book::where('id', '=',$input->editId)->where('admin_id',$user->admin_id)->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
+                {
+                    Book::where('id',$input->editId)->update(array('catagory_id' => $input->catagoryId,'subcatagory_id' => $input->subCatagoryId,'book_name' => $input->bookName,'isbn_no' => $input->isbn_no,'author_name' => $input->author_name));
+                    $output['status']=true;
+                    $output['message']='Book Successfully Updated';
+                    $response['data']=$this->encryptData($output);
+                    $code = 200;
+                }
+                else
+                {
+                    $output['status']=true;
+                    $output['message']='Something went wrong. Please try again later.';
+                    $response['data']=$this->encryptData($output);
+                    $code = 400;
+                }
+
+            }
+            else
+            {
+                $output['status']=false;
+                $output['message']=[$validator->errors()->first()];
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
         return response($response, $code);
     }
     public function addBook(Request $request)

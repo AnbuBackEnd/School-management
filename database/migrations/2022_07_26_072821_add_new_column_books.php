@@ -15,8 +15,8 @@ class AddNewColumnBooks extends Migration
     {
         Schema::table('books', function (Blueprint $table) {
             $table->text('encrypt_id')->nullable();
-            $table->text('catagory_encrypt_id')->default(0);
-            $table->text('subcatagory_encrypt_id')->default(0);
+            $table->text('catagory_encrypt_id')->nullable();
+            $table->text('subcatagory_encrypt_id')->nullable();
         });
     }
 
