@@ -16,6 +16,28 @@ use App\Http\Traits\StudentTrait;
 class SubjectController extends Controller
 {
     use StudentTrait;
+    public function addSubjectEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'subjectName' => 'required',
+            'totalMarks' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function addSubject(Request $request)
     {
         $user=Auth::User();
@@ -198,6 +220,29 @@ class SubjectController extends Controller
         }
 
 
+        return response($response, $code);
+    }
+    public function updateSubjectsEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'subjectName' => 'required',
+            'subjectId' => 'required',
+            'totalMarks' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
         return response($response, $code);
     }
     public function updateSubjects(Request $request)

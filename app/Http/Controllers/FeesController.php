@@ -141,6 +141,30 @@ class FeesController extends Controller
             $code = 400;
         }
     }
+    public function initiateFeesEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'feesName' => 'required',
+            'amount' => 'required',
+            'classId' => 'required',
+            'lastDayToPay' => 'required | date',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function initiateFees(Request $request)
     {
         $user=Auth::User();
@@ -205,6 +229,30 @@ class FeesController extends Controller
             $output['message']='Unauthorized Access';
             $response['data']=$this->encryptData($output);
             $code=400;
+        }
+        return response($response, $code);
+    }
+    public function pay_feesEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'studentId' => 'required',
+            'feesId' => 'required',
+            'classId' => 'required',
+            'date' => 'required | date',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
         }
         return response($response, $code);
     }

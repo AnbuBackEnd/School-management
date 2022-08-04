@@ -22,6 +22,27 @@ use App\Http\Traits\StudentTrait;
 class BookController extends Controller
 {
     use StudentTrait;
+    public function addBookCatagoryEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'catagoryName' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function addBookCatagory(Request $request)
     {
         $user=Auth::User();
@@ -208,6 +229,28 @@ class BookController extends Controller
 
         return response($response, $code);
     }
+    public function updateCatagoryEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'catagoryName' => 'required',
+            'editId' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function updateCatagory(Request $request)
     {
 
@@ -257,7 +300,29 @@ class BookController extends Controller
 
     }
 
+    public function updateSubCatagoryEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'catagoryId' => 'required',
+            'subCatagoryName' => 'required',
+            'editId' => 'required',
+        ]);
 
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function updateSubCatagory(Request $request)
     {
 
@@ -306,6 +371,28 @@ class BookController extends Controller
         }
         return response($response, $code);
 
+    }
+    public function addBookSubCatagoryEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'subCatagoryName' => 'required',
+            'catagoryId' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
     }
     public function addBookSubCatagory(Request $request)
     {
@@ -463,6 +550,31 @@ class BookController extends Controller
 
         return response($response, $code);
     }
+    public function updateBookEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'subCatagoryId' => 'required',
+                'catagoryId' => 'required',
+                'bookName' => 'required',
+                'isbnNO' => 'required',
+                'authorName' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function updateBook(Request $request)
     {
         $user=Auth::User();
@@ -510,6 +622,31 @@ class BookController extends Controller
             $output['message']='Unauthorized Access';
             $response['data']=$this->encryptData($output);
             $code=400;
+        }
+        return response($response, $code);
+    }
+    public function addBookEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'subCatagoryId' => 'required',
+                'catagoryId' => 'required',
+                'bookName' => 'required',
+                'isbnNO' => 'required',
+                'authorName' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
         }
         return response($response, $code);
     }
@@ -773,6 +910,30 @@ class BookController extends Controller
         }
         return response($response, $code);
     }
+    public function toReturnEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'bookId' => 'required',
+            'returned_status' => 'required',
+            'fine_amount' => 'required',
+            'fine_status' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function toReturn(Request $request)
     {
         $user=Auth::User();
@@ -913,6 +1074,35 @@ class BookController extends Controller
             $output['message']='Unauthorized Access';
             $response['data']=$this->encryptData($output);
             $code=400;
+        }
+        return response($response, $code);
+    }
+    public function request_booksEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'catagoryId' => 'required',
+            'subCatagoryId' => 'required',
+            'bookId' => 'required',
+            'studentId' => 'required',
+            'classId' => 'required',
+            'staffId' => 'required',
+            'getDate' => 'required | date',
+            'returnDate' => 'required | date',
+            'student' => 'required | boolean',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
         }
         return response($response, $code);
     }

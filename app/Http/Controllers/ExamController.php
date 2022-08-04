@@ -19,6 +19,27 @@ use App\Http\Traits\StudentTrait;
 class ExamController extends Controller
 {
     use StudentTrait;
+    public function addExamEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'examName' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function addExam(Request $request)
     {
         $user=Auth::User();
@@ -202,8 +223,28 @@ class ExamController extends Controller
             $response['data']=$this->encryptData($output);
             $code=400;
         }
+        return response($response, $code);
+    }
+    public function updateExamEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'examName' => 'required',
+            'editId' => 'required',
+        ]);
 
 
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
         return response($response, $code);
     }
     public function updateExam(Request $request)
@@ -252,6 +293,30 @@ class ExamController extends Controller
         }
         return response($response, $code);
 
+    }
+    public function addExamRecordsEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'examId' => 'required',
+            'classId' => 'required',
+            'subjectId' => 'required',
+            'date' => 'required | date',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
     }
     public function addExamRecords(Request $request)
     {
@@ -444,6 +509,31 @@ class ExamController extends Controller
         }
 
 
+        return response($response, $code);
+    }
+    public function updateExamRecordEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'examId' => 'required',
+            'classId' => 'required',
+            'subjectId' => 'required',
+            'date' => 'required | date',
+            'editId' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
         return response($response, $code);
     }
     public function updateExamRecord(Request $request)

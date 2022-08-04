@@ -19,6 +19,37 @@ use App\Http\Traits\StudentTrait;
 class StudentController extends Controller
 {
     use StudentTrait;
+    public function addStudentEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'address' => 'required',
+            'gender' => 'required | numeric',
+            'city' => 'required',
+            'phone' => 'required',
+            'studentNo' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'dob' => 'date_format:Y-m-d',
+            'password' => 'required',
+            'parent_or_guardian' => 'required',
+            'classId' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function addStudent(Request $request)
     {
         $user=Auth::User();

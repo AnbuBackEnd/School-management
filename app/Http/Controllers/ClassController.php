@@ -48,6 +48,28 @@ class ClassController extends Controller
         }
         return response($response, $code);
     }
+    public function addClassesEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'sectionId' => 'required',
+            'standardId' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function addClasses(Request $request)
     {
         $user=Auth::User();
@@ -110,6 +132,29 @@ class ClassController extends Controller
             $output['message']='Unauthorized Access';
             $response['data']=$this->encryptData($output);
             $code=400;
+        }
+        return response($response, $code);
+    }
+    public function updateClassesEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'sectionId' => 'required',
+            'standardId' => 'required',
+            'classId' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
         }
         return response($response, $code);
     }

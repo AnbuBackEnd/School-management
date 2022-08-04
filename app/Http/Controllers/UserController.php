@@ -8,11 +8,36 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\user;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-
 use App\Http\Traits\StudentTrait;
 class UserController extends Controller
 {
     use StudentTrait;
+    public function registerEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'admin_name' => 'required',
+            'address' => 'required',
+            'phone' => 'required|min:10',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function register(Request $request)
     {
         $rules = [
@@ -84,6 +109,28 @@ class UserController extends Controller
     {
         $this->encrypt_sample();
     }
+    public function accountVerificationEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'otpCode' => 'required|min:6',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function accountVerification(Request $request)
     {
         $rules = [
@@ -119,6 +166,28 @@ class UserController extends Controller
             //$response=$this->encrypt($output);
             $response['data']=$this->encryptData($output);
             $code=400;
+        }
+        return response($response, $code);
+    }
+    public function loginEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
         }
         return response($response, $code);
     }
@@ -200,6 +269,36 @@ class UserController extends Controller
 
 
 
+    }
+    public function addStaffEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'gender' => 'required',
+            'address' => 'required',
+            'role' => 'required',
+            'city' => 'required',
+            'dob' => 'required | date',
+            'phone' => 'required|min:10',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8',
+            'classId' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
     }
     public function addStaff(Request $request)
     {

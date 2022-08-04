@@ -19,6 +19,30 @@ use App\Http\Traits\StudentTrait;
 class ResultController extends Controller
 {
     use StudentTrait;
+public function addResultRecordEncrypt(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'studentId' => 'required',
+        'subjectId' => 'required',
+        'examId' => 'required',
+        'mark' => 'required',
+    ]);
+
+
+    if(!$validator->fails())
+    {
+        $response['data']=$this->encryptData(json_encode($request->all()));
+        //$response=$this->encrypt($output);
+        $code = 200;
+    }
+    else
+    {
+        $response['message']=[$validator->errors()->first()];
+    // $response=$this->encrypt($output);
+        $code = 200;
+    }
+    return response($response, $code);
+}
     public function addResultRecord(Request $request)
     {
         $user=Auth::User();
