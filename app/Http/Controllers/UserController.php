@@ -63,6 +63,7 @@ class UserController extends Controller
                 $user->phone =  $input['phone'];
                 $user->email = $input['email'];
                 $user->password = Hash::make($input['password']);
+                $user->account_verification_status=1;
                 $user->otp_code= random_int(100000, 999999);
                 $user->role=1;
                 $user->role_text='Admin';
