@@ -51,7 +51,7 @@ class SubjectController extends Controller
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if(Subject::where('subject_name', '=', $input->subjectName)->where('user_id','=',$user->id)->count() == 0)
+                if(Subject::where('subject_name', '=', $input->subjectName)->where('user_id','=',$user->id)->where('deleteStatus',0)->count() == 0)
                 {
                     $subject = new Subject;
                     $subject->subject_name=$input->subjectName;
