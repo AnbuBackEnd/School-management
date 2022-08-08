@@ -2,18 +2,18 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\controllers\UserController;
-use App\Http\controllers\SectionController;
-use App\Http\controllers\SubjectController;
-use App\Http\controllers\ClassController;
-use App\Http\controllers\StudentAttendance;
-use App\Http\controllers\FeesController;
-use App\Http\controllers\ExamController;
-use App\Http\controllers\StudentController;
-use App\Http\controllers\ResultController;
-use App\Http\controllers\BookController;
-use App\Http\controllers\ReportController;
-use App\Http\controllers\StaffSalaryController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\SectionController;
+use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\ClassController;
+use App\Http\Controllers\StudentAttendance;
+use App\Http\Controllers\FeesController;
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\ResultController;
+use App\Http\Controllers\BookController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StaffSalaryController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
