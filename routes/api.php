@@ -183,5 +183,3 @@ Route::get('/deleteStaffSalary/{Id}', [StaffSalaryController::class, 'deleteStaf
 Route::get('/getStaffSalary/{Id}', [StaffSalaryController::class, 'getStaffSalary'])->middleWare('auth:api');
 Route::get('/getStaffSalaries', [StaffSalaryController::class, 'getStaffSalaries'])->middleWare('auth:api');
 
-
-
