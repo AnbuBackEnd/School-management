@@ -9,7 +9,7 @@ use Input;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\StaffSalary;
-use App\Models\user;
+use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Http\Traits\StudentTrait;

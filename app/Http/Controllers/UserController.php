@@ -5,7 +5,7 @@ use Hash;
 use Input;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\user;
+use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Http\Traits\StudentTrait;

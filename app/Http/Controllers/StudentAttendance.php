@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\user;
-use App\Models\section;
+use App\Models\User;
+use App\Models\Section;
 use App\Models\Fee;
 use App\Models\Student;
-use App\Models\studentAttendance as studentAtt;
+use App\Models\StudentAttendance as studentAtt;
 use App\Models\StaffAttendance as staffAtt;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
