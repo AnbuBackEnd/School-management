@@ -20,6 +20,28 @@ use App\Http\Traits\StudentTrait;
 class StudentAttendance extends Controller
 {
     use StudentTrait;
+    public function confirmAttendanceStudentEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'classId' => 'required | integer',
+            'staff' => 'required | boolean'
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
+    }
     public function confirmAttendanceStudent(Request $request)
     {
         $rules = [
@@ -76,6 +98,27 @@ class StudentAttendance extends Controller
             $code=400;
         }
 
+    }
+    public function attendanceStudentEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'value' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
+        }
+        return response($response, $code);
     }
     public function attendanceStudent(Request $request)
     {
@@ -139,6 +182,27 @@ class StudentAttendance extends Controller
             $output['message'] = 'UnAuthorized Access';
             $response['data']=$this->encryptData($output);
             $code=200;
+        }
+        return response($response, $code);
+    }
+    public function attendanceStaffEncrypt(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'value' => 'required',
+        ]);
+
+
+        if(!$validator->fails())
+        {
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
+        }
+        else
+        {
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
         }
         return response($response, $code);
     }

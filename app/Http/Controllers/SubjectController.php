@@ -195,7 +195,7 @@ class SubjectController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('listSubjects'))
         {
-            $subject = Subject::all(['id AS subject_id', 'subject_name','total_marks']);
+            $subject = Subject::where('user_id','=',$user->id)->where('deleteStatus',0)->get(['id AS subject_id', 'subject_name','total_marks']);
             if (isset($subject)) {
                 $output['status'] = true;
                 $output['response'] = $subject;
