@@ -13,6 +13,7 @@ use App\Http\controllers\StudentController;
 use App\Http\controllers\ResultController;
 use App\Http\controllers\BookController;
 use App\Http\controllers\ReportController;
+use App\Http\controllers\StaffSalaryController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,7 +25,9 @@ use App\Http\controllers\ReportController;
 |
 */
 
+Route::get('/adminPersonalInformation', [ReportController::class, 'adminPersonalInformation']);
 Route::get('/unauthenticated', [UserController::class, 'unauthenticated'])->name('unauthenticated');
+Route::get('/checkingfinal', [StudentAttendance::class, 'checkingfinal']);
 Route::post('/registerEncrypt', [UserController::class, 'registerEncrypt']);
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/accountVerificationEncrypt', [UserController::class, 'accountVerificationEncrypt']);
@@ -70,11 +73,14 @@ Route::post('/addStaffEncrypt', [UserController::class, 'addStaffEncrypt'])->mid
 Route::post('/addStaff', [UserController::class, 'addStaff'])->middleWare('auth:api');
 Route::get('/getRoles', [UserController::class, 'getStaffs'])->middleWare('auth:api');
 //classes
-Route::post('/addClassEncrypt', [ClassController::class, 'addClassEncrypt'])->middleWare('auth:api');
+Route::post('/assignClassesEncrypt', [ClassController::class, 'assignClassesEncrypt'])->middleWare('auth:api');
+Route::post('/assignClasses', [ClassController::class, 'assignClasses'])->middleWare('auth:api');
+Route::post('/addClassesEncrypt', [ClassController::class, 'addClassesEncrypt'])->middleWare('auth:api');
 Route::post('/addClass', [ClassController::class, 'addClasses'])->middleWare('auth:api');
-Route::post('/updateClassEncrypt', [ClassController::class, 'updateClassEncrypt'])->middleWare('auth:api');
+Route::post('/updateClassesEncrypt', [ClassController::class, 'updateClassesEncrypt'])->middleWare('auth:api');
 Route::post('/updateClass', [ClassController::class, 'updateClasses'])->middleWare('auth:api');
 Route::get('/deleteClass/{id}', [ClassController::class, 'deleteClasses'])->middleWare('auth:api');
+Route::get('/deleteAssignClasses/{id}', [ClassController::class, 'deleteAssignClasses'])->middleWare('auth:api');
 Route::get('/getClassesRecord/{id}', [ClassController::class, 'getClassesRecord'])->middleWare('auth:api');
 Route::get('/getAllClasses', [ClassController::class, 'getAllClasses'])->middleWare('auth:api');
 Route::get('/listAllClasses', [ClassController::class, 'listAllClasses'])->middleWare('auth:api');
@@ -89,6 +95,8 @@ Route::get('/listAllSections', [SectionController::class, 'listAllSections'])->m
 
 //subjects
 Route::post('/addSubjectEncrypt', [SubjectController::class, 'addSubjectEncrypt'])->middleWare('auth:api');
+Route::post('/updateSubjectsEncrypt', [SubjectController::class, 'updateSubjectsEncrypt'])->middleWare('auth:api');
+Route::post('/updateSubjects', [SubjectController::class, 'updateSubjects'])->middleWare('auth:api');
 Route::post('/addSubject', [SubjectController::class, 'addSubject'])->middleWare('auth:api');
 Route::get('/deleteSubject/{id}', [SubjectController::class, 'deleteSubject'])->middleWare('auth:api');
 Route::get('/getSubject/{id}', [SubjectController::class, 'getSubjectRecord'])->middleWare('auth:api');
@@ -96,6 +104,7 @@ Route::get('/getAllSubjects', [SubjectController::class, 'getAllSubjects'])->mid
 Route::get('/listAllSubjects', [SubjectController::class, 'listAllSubjects'])->middleWare('auth:api');
 //library Process
 Route::post('/addBookCatagoryEncrypt', [BookController::class, 'addBookCatagoryEncrypt'])->middleWare('auth:api');
+Route::post('/returnBookEncrypt', [BookController::class, 'toReturnEncrypt'])->middleWare('auth:api');
 Route::post('/addBookCatagory', [BookController::class, 'addBookCatagory'])->middleWare('auth:api');
 Route::post('/request_booksEncrypt', [BookController::class, 'request_booksEncrypt'])->middleWare('auth:api');
 Route::post('/request_books', [BookController::class, 'request_books'])->middleWare('auth:api');
@@ -147,7 +156,9 @@ Route::get('/listAllBooks', [BookController::class, 'listAllBooks'])->middleWare
 // Route::get('/listFeesCatagory', [FeesController::class, 'listAllFeesStructureCatagory'])->middleWare('auth:api');
 //standards
 Route::get('/listAllStandards', [ClassController::class, 'listAllStandards'])->middleWare('auth:api');
-Route::post('/putAttendance', [StudentAttendance::class, 'putAttendance']);
+Route::post('/confirmAttendanceStudent', [StudentAttendance::class, 'confirmAttendanceStudent']);
+Route::post('/attendanceStudent', [StudentAttendance::class, 'attendanceStudent']);
+Route::post('/attendanceStaff', [StudentAttendance::class, 'attendanceStaff']);
 //reports
 Route::get('/feesNotPaidStudents_admin/{feedId}/{classId}', [ReportController::class, 'feesNotPaidStudents_admin'])->middleWare('auth:api');
 Route::get('/feesNotPaidStudents_teacher/{feesId}', [ReportController::class, 'feesNotPaidStudents_teacher'])->middleWare('auth:api');
@@ -155,3 +166,22 @@ Route::get('/gradeCalculation_admin/{classId}/{examId}', [ReportController::clas
 Route::get('/gradeCalculation_teacher/{examId}', [ReportController::class, 'gradeCalculation_teacher'])->middleWare('auth:api');
 Route::get('/studentAttendanceReport_admin/{classId}/{date}', [ReportController::class, 'studentAttendanceReport_admin'])->middleWare('auth:api');
 Route::get('/studentAttendanceReport_teacher/{classId}', [ReportController::class, 'studentAttendanceReport_teacher'])->middleWare('auth:api');
+Route::get('/feesAllDetails/{feesId}', [ReportController::class, 'feesAllDetails'])->middleWare('auth:api');
+Route::get('/feesNotPaidStudents_teacher/{feesId}', [ReportController::class, 'feesNotPaidStudents_teacher'])->middleWare('auth:api');
+Route::get('/feesNotPaidStudents_admin/{feesId}/classId', [ReportController::class, 'feesNotPaidStudents_admin'])->middleWare('auth:api');
+Route::get('/PersonalInformation', [ReportController::class, 'PersonalInformation'])->middleWare('auth:api');
+Route::get('/OverAllStudentList', [ReportController::class, 'OverAllStudentList'])->middleWare('auth:api');
+Route::get('/staffSalarycalculationRecords', [ReportController::class, 'staffSalarycalculationRecords'])->middleWare('auth:api');
+Route::get('/staffSalaryCalculationAdmin', [ReportController::class, 'staffSalaryCalculationAdmin'])->middleWare('auth:api');
+Route::get('/overAllStaffList', [ReportController::class, 'overAllStaffList'])->middleWare('auth:api');
+Route::get('/gradeCalculation_admin/{classId}/{examId}', [ReportController::class, 'gradeCalculation_admin'])->middleWare('auth:api');
+//staff salary
+Route::post('/addStaffSalaryEncrypt', [StaffSalaryController::class, 'addStaffSalaryEncrypt'])->middleWare('auth:api');
+Route::post('/updatestaffSalaryEncrypt', [StaffSalaryController::class, 'updatestaffSalaryEncrypt'])->middleWare('auth:api');
+Route::post('/addStaffSalary', [StaffSalaryController::class, 'addStaffSalary'])->middleWare('auth:api');
+Route::get('/deleteStaffSalary/{Id}', [StaffSalaryController::class, 'deleteStaffSalary'])->middleWare('auth:api');
+Route::get('/getStaffSalary/{Id}', [StaffSalaryController::class, 'getStaffSalary'])->middleWare('auth:api');
+Route::get('/getStaffSalaries', [StaffSalaryController::class, 'getStaffSalaries'])->middleWare('auth:api');
+
+
+

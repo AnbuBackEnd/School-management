@@ -284,6 +284,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
             'classId' => 'required',
+            'salary' => 'required',
         ]);
 
 
@@ -319,6 +320,7 @@ class UserController extends Controller
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|min:8',
                 'classId' => 'required',
+                'salary' => 'required',
             ];
 
             $input=$this->decrypt($request->input('input'));
@@ -346,7 +348,7 @@ class UserController extends Controller
                     $user->role_text=$input->role;
                     $user->account_verification_status=1;
                     $user->assignRole($input->role);
-                    if ($user->save())
+                    if($user->save())
                     {
                         $userId=$this->encryptData($user->id);
                         User::where('id',$user->id)->update(array('encrypt_id' => $userId));

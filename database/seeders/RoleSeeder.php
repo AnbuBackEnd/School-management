@@ -75,6 +75,21 @@ class RoleSeeder extends Seeder
         $gradeCalculationReportTeacher = Permission::create(['name' => 'gradeCalculationReportTeacher']);
         $studentAttendanceReportAdmin = Permission::create(['name' => 'studentAttendanceReportAdmin']);
         $studentAttendanceReportTeacher = Permission::create(['name' => 'studentAttendanceReportTeacher']);
+        $assignClasses = Permission::create(['name' => 'assignClasses']);
+        $deleteAssignClasses = Permission::create(['name' => 'deleteAssignClasses']);
+        $feesAllDetails = Permission::create(['name' => 'feesAllDetails']);
+        $overAllStudentListAdmin = Permission::create(['name' => 'overAllStudentList-Admin']);
+        $overAllStaffListAdmin = Permission::create(['name' => 'overAllStaffList-Admin']);
+        $staffSalaryReportTotal = Permission::create(['name' => 'staffSalaryReport-Total']);
+        $staffSalaryReportAdminParticular = Permission::create(['name' => 'staffSalaryReportAdmin-Particular']);
+        $addSalary = Permission::create(['name' => 'addSalary']);
+        $deleteSalary = Permission::create(['name' => 'deleteSalary']);
+        $viewSalary = Permission::create(['name' => 'viewSalary']);
+        $editSalary = Permission::create(['name' => 'editSalary']);
+        $AttendanceStudent = Permission::create(['name' => 'AttendanceStudent']);
+        $AttendanceStaff = Permission::create(['name' => 'AttendanceStaff']);
+
+
 
 
 
@@ -101,6 +116,17 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo($feesNotPaidStudentsAdmin);
         $role->givePermissionTo($gradeCalculationReportAdmin);
         $role->givePermissionTo($studentAttendanceReportAdmin);
+        $role->givePermissionTo($assignClasses);
+        $role->givePermissionTo($deleteAssignClasses);
+        $role->givePermissionTo($feesAllDetails);
+        $role->givePermissionTo($overAllStudentListAdmin);
+        $role->givePermissionTo($overAllStaffListAdmin);
+        $role->givePermissionTo($staffSalaryReportTotal);
+        $role->givePermissionTo($staffSalaryReportAdminParticular);
+        $role->givePermissionTo($addSalary);
+        $role->givePermissionTo($editSalary);
+        $role->givePermissionTo($viewSalary);
+        $role->givePermissionTo($deleteSalary);
         //Teaching Staff Give Permissions
         $role=Role::create(['name' => 'TeachingStaff']);
         $role->givePermissionTo($addStudents);

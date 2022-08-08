@@ -26,6 +26,7 @@ class BookController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'catagoryName' => 'required',
+            'onlineBooks' => 'required | boolean',
         ]);
 
 
@@ -50,6 +51,7 @@ class BookController extends Controller
         {
             $rules = [
                 'catagoryName' => 'required',
+                'onlineBooks' => 'required | boolean',
             ];
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
@@ -59,6 +61,7 @@ class BookController extends Controller
                 {
                     $bookcata = new Bookcatagory;
                     $bookcata->catagory_name=$input->catagoryName;
+                    $bookcata->online_books_status=$input->onlineBooks;
                     $bookcata->user_id=$user->id;
                     $bookcata->admin_id=$user->admin_id;
                     if($bookcata->save())
@@ -104,7 +107,6 @@ class BookController extends Controller
     }
     public function deleteCatagory($bookId)
     {
-        // $bookId=$this->decrpt($bookId);
         $user=Auth::User();
         if($user->hasPermissionTo('deleteBookCatagory'))
         {
@@ -171,7 +173,7 @@ class BookController extends Controller
 
         if($user->hasPermissionTo('viewBookCatagory'))
         {
-            $book = Bookcatagory::where('deleteStatus',0)->where('admin_id',$user->admin_id)->paginate(10,['id', 'catagory_name']);
+            $book = Bookcatagory::where('deleteStatus',0)->where('admin_id',$user->admin_id)->paginate(10,['id', 'catagory_name','online_books_status']);
             if (isset($book)) {
 
                 $output['status'] = true;
@@ -202,7 +204,7 @@ class BookController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('listBookCatagory'))
         {
-            $book = Bookcatagory::where('deleteStatus',0)->where('admin_id',$user->admin_id)->get(['id', 'catagory_name']);
+            $book = Bookcatagory::where('deleteStatus',0)->where('admin_id',$user->admin_id)->get(['id', 'catagory_name','online_books_status']);
             if (isset($book)) {
                 $output['status'] = true;
                 $output['response'] = $book;
@@ -234,6 +236,7 @@ class BookController extends Controller
         $validator = Validator::make($request->all(), [
             'catagoryName' => 'required',
             'editId' => 'required',
+            'onlineBooks' => 'required | boolean',
         ]);
 
 
@@ -253,13 +256,13 @@ class BookController extends Controller
     }
     public function updateCatagory(Request $request)
     {
-
         $user=Auth::User();
         if($user->hasPermissionTo('editBookCatagory'))
         {
             $rules = [
                 'catagoryName' => 'required',
                 'editId' => 'required',
+                'onlineBooks' => 'required | boolean',
             ];
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
@@ -267,7 +270,7 @@ class BookController extends Controller
             {
                 if (Bookcatagory::where('id', '=',$input->editId)->where('user_id',$user->id)->where('deleteStatus',0)->count() == 1)
                 {
-                    Bookcatagory::where('id',$input->editId)->update(array('catagory_name' => $input->catagoryName));
+                    Bookcatagory::where('id',$input->editId)->update(array('catagory_name' => $input->catagoryName,'online_books_status' => $input->onlineBooks));
                     $output['status']=true;
                     $output['message']='Book Catagory Successfully Updated';
                     $response['data']=$this->encryptData($output);
@@ -306,6 +309,7 @@ class BookController extends Controller
             'catagoryId' => 'required',
             'subCatagoryName' => 'required',
             'editId' => 'required',
+            'onlineBooks' => 'required | boolean',
         ]);
 
 
@@ -333,6 +337,7 @@ class BookController extends Controller
                 'catagoryId' => 'required',
                 'subCatagoryName' => 'required',
                 'editId' => 'required',
+                'onlineBooks' => 'required | boolean',
             ];
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
@@ -377,6 +382,7 @@ class BookController extends Controller
         $validator = Validator::make($request->all(), [
             'subCatagoryName' => 'required',
             'catagoryId' => 'required',
+            'onlineBooks' => 'required | boolean',
         ]);
 
 
@@ -402,6 +408,7 @@ class BookController extends Controller
             $rules = [
                 'subCatagoryName' => 'required',
                 'catagoryId' => 'required',
+                'onlineBooks' => 'required | boolean',
             ];
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
@@ -523,7 +530,7 @@ class BookController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('listBookSubCatagory'))
         {
-            $BookSubCatagory = BookSubCatagory::where('deleteStatus',0)->where('user_id',$user->id)->get(['id', 'subcatagory_name']);
+            $BookSubCatagory = BookSubCatagory::where('deleteStatus',0)->where('user_id',$user->id)->get(['id', 'subcatagory_name','online_books_status']);
             if (isset($BookSubCatagory)) {
                 $output['status'] = true;
                 $output['response'] = $BookSubCatagory;
@@ -558,6 +565,7 @@ class BookController extends Controller
                 'bookName' => 'required',
                 'isbnNO' => 'required',
                 'authorName' => 'required',
+                'onlineBooks' => 'required | boolean',
         ]);
 
 
@@ -586,6 +594,7 @@ class BookController extends Controller
                 'bookName' => 'required',
                 'isbnNO' => 'required',
                 'authorName' => 'required',
+                'onlineBooks' => 'required | boolean',
             ];
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
@@ -633,8 +642,8 @@ class BookController extends Controller
                 'bookName' => 'required',
                 'isbnNO' => 'required',
                 'authorName' => 'required',
+                'onlineBooks' => 'required | boolean',
         ]);
-
 
         if(!$validator->fails())
         {
@@ -661,18 +670,20 @@ class BookController extends Controller
                 'bookName' => 'required',
                 'isbnNO' => 'required',
                 'authorName' => 'required',
+                'onlineBooks' => 'required | boolean',
+                'url' => 'required',
             ];
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
             if(!$validator->fails())
             {
-                if (Book::where('book_name', '=', $input->bookName)->where('catagory_id',$input->catagoryId)->where('subcatagory_id',$input->subCatagoryId)->where('admin_id',$user->admin_id)->count() == 0)
+                if (Book::where('book_name', '=', $input->bookName)->where('catagory_id',$input->catagoryId)->where('online_books_status',$input->onlineBooks)->where('subcatagory_id',$input->subCatagoryId)->where('admin_id',$user->admin_id)->count() == 0)
                 {
                     $bookcata = new Book;
-
                     $bookcata->subcatagory_id=$input->subCatagoryId;
-
                     $bookcata->isbn_no=$input->isbnNO;
+                    $bookcata->online_books_status=$input->onlineBooks;
+                    $bookcata->url=$input->url;
                     $bookcata->book_name=$input->bookName;
                     $bookcata->author_name=$input->authorName;
                     $bookcata->catagory_id=$input->catagoryId;
@@ -818,7 +829,7 @@ class BookController extends Controller
         $user=Auth::User();
         if($user->hasPermissionTo('listBooks'))
         {
-            $book = Book::where('deleteStatus',0)->where('admin_id',$user->admin_id)->get(['id', 'book_name']);
+            $book = Book::where('deleteStatus',0)->where('admin_id',$user->admin_id)->get(['id', 'book_name','online_books_status']);
             if (isset($book)) {
                 $output['status'] = true;
                 $output['response'] = $book;
@@ -990,8 +1001,8 @@ class BookController extends Controller
         {
             $book = RequestBook::with(['classes','student','book','catagory','subcatagory','staff'])->where('deleteStatus','=',0)->where('return_date','=',date('Y-m-d'))->where('admin_id','=',$user->admin_id)->get();
 
-            if (isset($book)) {
-
+            if (isset($book))
+            {
                 $output['status'] = true;
                 $output['response'] = $book;
                 $output['message'] = 'Successfully Retrieved';

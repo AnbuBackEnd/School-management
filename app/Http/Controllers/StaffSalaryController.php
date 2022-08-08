@@ -8,34 +8,23 @@ use Hash;
 use Input;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Models\StaffSalary;
 use App\Models\user;
-use App\Models\standard;
-use App\Models\student;
-use App\Models\FeesStructureCatagory;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Http\Traits\StudentTrait;
 
-class StudentController extends Controller
+class StaffSalaryController extends Controller
 {
-    use StudentTrait;
-    public function addStudentEncrypt(Request $request)
+    public function addStaffSalaryEncrypt(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'address' => 'required',
-            'gender' => 'required | numeric',
-            'city' => 'required',
-            'phone' => 'required',
-            'studentNo' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'dob' => 'date_format:Y-m-d',
-            'password' => 'required',
-            'parent_or_guardian' => 'required',
-            'classId' => 'required',
+            'staffId' => 'required | numeric',
+            'fromDate' => 'required | date',
+            'toDate' => 'required | date',
+            'salaryAmount' => 'required',
+            'misAmount' => 'required',
         ]);
-
-
         if(!$validator->fails())
         {
             $response['data']=$this->encryptData(json_encode($request->all()));
@@ -50,65 +39,48 @@ class StudentController extends Controller
         }
         return response($response, $code);
     }
-    public function addStudent(Request $request)
+    public function addStaffSalary(Request $request)
     {
         $user=Auth::User();
-        if($user->hasPermissionTo('addStudents'))
+        if($user->hasPermissionTo('addSalary'))
         {
-
             $rules = [
-                'name' => 'required',
-                'address' => 'required',
-                'gender' => 'required | numeric',
-                'city' => 'required',
-                'phone' => 'required',
-                'studentNo' => 'required',
-                'email' => 'required|email|unique:users,email',
-                'dob' => 'date_format:Y-m-d',
-                'password' => 'required',
-                'parent_or_guardian' => 'required',
-                'classId' => 'required',
+                'staffId' => 'required | numeric',
+                'fromDate' => 'required | date',
+                'toDate' => 'required | date',
+                'salaryAmount' => 'required',
+                'misAmount' => 'required',
             ];
-
-
             $input=$this->decrypt($request->input('input'));
             $validator = Validator::make((array)$input, $rules);
-
             if(!$validator->fails())
             {
-                if (Student::where('email', '=', $input->email)->count() == 0)
+                if (StaffSalary::where('staff_id', '=', $input->staffId)->where('from_date', '=',date('Y-m-d',strtotime($input->fromDate)))->where('to_date',date('Y-m-d',strtotime($input->toDate)))->where('user_id','=',$user->id)->count() == 0)
                 {
-                    $student = new Student;
-                    $student->name=$input->name;
-                    $student->address=$input->address;
-                    $student->gender=$input->gender;
-                    $student->city=$input->city;
-                    $student->phone=$input->phone;
-                    $student->student_id=$input->studentNo;
-                    $student->email=$input->email;
-                    $student->dob=date('Y-m-d',strtotime($input->dob));
-                    $student->parent_or_guardian=$input->parent_or_guardian;
-                    $student->password=$input->password;
-                    //$student->parent_or_guardian_phone=$input->parent_or_guardian_phone;
-                    $student->user_id=$user->id;
-                    $student->admin_id=$user->admin_id;
-                    $student->class_id=$input->classId;
 
-                    if($student->save())
+
+                    $staffsalary = new StaffSalary;
+                    $staffsalary->admin_id=$user->admin_id;
+                    $staffsalary->staff_id=$input->staffId;
+                    $staffsalary->salary_amount=$input->salaryAmount;
+                    $staffsalary->miscellaneous_amount=$input->misAmount;
+                    $staffsalary->from_date=date('Y-m-d',strtotime($input->fromDate));
+                    $staffsalary->to_date=date('Y-m-d',strtotime($input->toDate));
+                    if($staffsalary->save())
                     {
+
                         $output['status']=true;
-                        $output['message']='student Successfully Added';
+                        $output['message']='Staff Salary Successfully Added';;
                         $response['data']=$this->encryptData($output);
                         $code = 200;
                     }
                     else
                     {
-                        $output['status']=true;
+                        $output['status']=false;
                         $output['message']='Something went wrong. Please try again later.';
                         $response['data']=$this->encryptData($output);
                         $code = 400;
                     }
-
                 }
                 else
                 {
@@ -135,17 +107,15 @@ class StudentController extends Controller
         }
         return response($response, $code);
     }
-    public function deleteStudent($studentId)
+    public function deleteStaffSalary($recordId)
     {
-
         $user=Auth::User();
-        if($user->hasPermissionTo('deleteStudents'))
+        if($user->hasPermissionTo('deleteSalary'))
         {
-
-                $recordCount=Student::where('id', '=', $studentId)->where('user_id','=',$user->id)->count();
+            $recordCount=StaffSalary::where('id',$recordId)->where('admin_id',$user->admin_id)->where('confirm_status',0)->count();
             if ($recordCount == 1)
             {
-                Student::where('id',$studentId)->update(array('deleteStatus' => 1));
+                DB::table('staff_salaries')->where('id',$recordId)->where('admin_id',$user->admin_id)->where('confirm_status',0)->delete();
                 $output['status'] = true;
                 $output['message'] = 'Successfully Deleted';
                 $response['data']=$this->encryptData($output);
@@ -168,47 +138,47 @@ class StudentController extends Controller
         }
         return response($response, $code);
     }
-    public function getStudentRecord($studentId)
+    public function getStaffSalary($recordId)
     {
+        $user=Auth::User();
+        if($user->hasPermissionTo('editSalary'))
+        {
+            $staffRecord = StaffSalary::with(['getStaff'])->where('id','=',$recordId)->where('admin_id',$user->admin_id)->get();
 
-        $user=Auth::User();
-        if($user->hasPermissionTo('editStudents'))
-        {
-                $student = Student::where('id',$studentId)->where('user_id',$user->id)->where('admin_id',$user->admin_id)->where('deleteStatus',0)->first(['id','name','address','gender','city','phone','student_id AS student_no','email','dob','parent_or_guardian','class_id','admin_id','user_id']);
-            if (isset($student)) {
+            if (isset($staffRecord)) {
                 $output['status'] = true;
-                $output['student'] = $student;
+                $output['message'] = 'Successfully Retrieved';
+                $output['response'] = $staffRecord;
+                $response['data']=$this->encryptData($output);
+                $code=200;
+            }
+            else
+            {
+                $output['status'] = false;
+                $output['message'] = 'No Records Found';
+                $response['data']=$this->encryptData($output);
+                $code=400;
+            }
+        }
+        else
+        {
+            $output['status']=false;
+            $output['message']='Unauthorized Access';
+            $response['data']=$this->encryptData($output);
+            $code=400;
+        }
+        return response($response, $code);
+    }
+    public function getStaffSalaries()
+    {
+        $user=Auth::User();
+        if($user->hasPermissionTo('viewSalary'))
+        {
+            $staffRecord = StaffSalary::with(['getStaff'])->where('admin_id',$user->admin_id)->get();
+            if (isset($staffRecord)) {
 
-                $output['message'] = 'Successfully Retrieved';
-                $response['data']=$this->encryptData($output);
-                $code=200;
-            }
-            else
-            {
-                $output['status'] = false;
-                $output['message'] = 'No Records Found';
-                $response['data']=$this->encryptData($output);
-                $code=400;
-            }
-        }
-        else
-        {
-            $output['status']=false;
-            $output['message']='Unauthorized Access';
-            $response['data']=$this->encryptData($output);
-            $code=400;
-        }
-        return response($response, $code);
-    }
-    public function getAllStudents()
-    {
-        $user=Auth::User();
-        if($user->hasPermissionTo('viewStudents'))
-        {
-            $student = Student::where('user_id','=',$user->id)->where('admin_id',$user->admin_id)->paginate(10);
-            if (isset($student)) {
                 $output['status'] = true;
-                $output['student'] = $student;
+                $output['response'] = $staffRecord;
                 $output['message'] = 'Successfully Retrieved';
                 $response['data']=$this->encryptData($output);
                 $code=200;
@@ -230,35 +200,30 @@ class StudentController extends Controller
         }
         return response($response, $code);
     }
-    public function listAllStudents()
+    public function updatestaffSalaryEncrypt(Request $request)
     {
-        $user=Auth::User();
-        if($user->hasPermissionTo('listStudents'))
+        $validator = Validator::make($request->all(), [
+            'staffId' => 'required | numeric',
+            'fromDate' => 'required | date',
+            'toDate' => 'required | date',
+            'salaryAmount' => 'required',
+            'misAmount' => 'required',
+            'editId' => 'required',
+        ]);
+        if(!$validator->fails())
         {
-            $student = Student::where('user_id','=',$user->id)->where('admin_id',$user->admin_id)->get();
-            if (isset($student)) {
-                $output['status'] = true;
-                $output['student'] = $student;
-                $output['message'] = 'Successfully Retrieved';
-                $response['data']=$this->encryptData($output);
-                $code=200;
-            }
-            else
-            {
-                $output['status'] = false;
-                $output['message'] = 'No Records Found';
-                $response['data']=$this->encryptData($output);
-                $code=400;
-            }
+            $response['data']=$this->encryptData(json_encode($request->all()));
+            //$response=$this->encrypt($output);
+            $code = 200;
         }
         else
         {
-            $output['status']=false;
-            $output['message']='Unauthorized Access';
-            $response['data']=$this->encryptData($output);
-            $code=400;
+            $response['message']=[$validator->errors()->first()];
+        // $response=$this->encrypt($output);
+            $code = 200;
         }
         return response($response, $code);
     }
+
 
 }
